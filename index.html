@@ -139,6 +139,8 @@ select.inp{flex:none;width:auto;padding-right:8px}
 .tp.mine{box-shadow:inset 0 0 0 1px #4fb37e}
 .tp .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tp .nm small{display:block;color:var(--mut);font-weight:500;font-size:12px;overflow:hidden;text-overflow:ellipsis}
 .tp b{font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+.r2{display:grid;grid-template-columns:1fr auto;gap:8px}.r2[hidden]{display:none}.sum .selbtn{background:var(--card2);min-height:48px}.sum .selbtn.on{background:var(--ink);color:var(--bg)}
+.tpw{max-width:190px;margin-top:8px}
 .unl{display:inline-block;background:var(--card2);color:var(--ink);border-radius:6px;padding:1px 6px;font-size:11px;font-weight:600;margin-left:6px}
 /* нижнее меню */
 nav{position:fixed;bottom:0;left:0;right:0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:7;display:flex;justify-content:center}
@@ -217,17 +219,11 @@ nav button.on{color:var(--ink)}
 </section>
 
 <section class="view" id="v-safe">
+  <div class="seg" id="tabs" style="margin-top:14px"><button data-c="safe" class="on">Сейф</button><button data-c="col">Коллекция</button></div>
   <div class="sum"><div class="t"><b id="sval">0 сом</b><span id="scnt">0 шт</span></div>
     <div class="s"><span>Итог игры <em id="sPL">0</em></span><span>Прокруток <em id="sN">0</em></span><span>Лучший <em id="sBest">—</em></span></div>
-    <button class="sellall" id="quick">Продать всё</button></div>
-  <div class="tools">
-    <div class="seg" id="kinds"><button data-k="all" class="on">Всё</button><button data-k="plate">Номера</button><button data-k="sim">Сим</button></div>
-    <div class="r"><input class="inp" id="q" placeholder="Поиск: 777, AAA, 0555" inputmode="search" autocomplete="off">
-      <select class="inp" id="sort" aria-label="Сортировка"><option value="price">Дороже</option><option value="cheap">Дешевле</option><option value="date">Новые</option><option value="reg">Регион</option></select></div>
-    <div class="cols" id="cols"></div>
-    <div class="colbar" id="colbar" hidden></div>
-    <div class="r" style="justify-content:flex-end"><button class="selbtn" id="selMode">Выбрать несколько</button></div>
-  </div>
+    <div class="r2" id="sumBtns"><button class="sellall" id="quick">Продать всё</button><button class="selbtn" id="selMode">Выбрать</button></div>
+    <p class="hint" id="colHint" hidden style="margin:0">Номера в коллекции не продаются кнопкой «Продать всё» и не показываются в сейфе. Продать можно только вручную: нажмите на номер.</p></div>
   <div class="list" id="list"></div>
 </section>
 
@@ -287,10 +283,10 @@ document.body.insertAdjacentHTML('afterbegin',`<svg width="0" height="0" style="
 const FLAG='<svg viewBox="0 0 30 20"><use href="#kgf"/></svg>';
 
 /* ===== справочники ===== */
-const REG={'01':'Бишкек','02':'Ош','03':'Баткенская обл.','04':'Джалал-Абадская обл.','05':'Нарынская обл.','06':'Ошская обл.','07':'Таласская обл.','08':'Чуйская обл.','09':'Иссык-Кульская обл.'};
+const REG={'00':'Особая серия','01':'Бишкек','02':'Ош','03':'Баткенская обл.','04':'Джалал-Абадская обл.','05':'Нарынская обл.','06':'Ошская обл.','07':'Таласская обл.','08':'Чуйская обл.','09':'Иссык-Кульская обл.'};
 const RW={'01':26,'02':10,'03':6,'04':12,'05':4,'06':12,'07':4,'08':16,'09':10};
 /* какая доля рыночной надбавки достаётся региону: в Бишкеке торги самые дорогие */
-const RF={'01':1,'08':.85,'02':.75,'09':.7,'04':.6,'06':.6,'03':.45,'05':.45,'07':.45};
+const RF={'00':1,'01':1,'08':.85,'02':.75,'09':.7,'04':.6,'06':.6,'03':.45,'05':.45,'07':.45};
 const OLD={B:['01',18,1],E:['01',5,1],F:['01',3,1],Z:['02',8,.75],A:['03',5,.45],D:['04',10,.6],N:['05',3,.45],H:['05',2,.45],O:['06',10,.6],T:['07',4,.45],C:['08',10,.85],S:['08',5,.85],I:['09',9,.7]};
 const START=50000,COST=750,USD=87.45,NEW_CAP=2620000,OLD_CAP=8740000,OLD_CHANCE=.3,ALLIN_MAX=500;
 const LET='ABCDEFGHIJKLMNOPRSTUVWXYZ',P_A=.6,LET_NA=LET.slice(1);
@@ -299,7 +295,7 @@ const WORDS=['AMG','BMW','VIP','ATA','NEO','MMA','KGZ','BOS','TOP','CEO','ACE','
 const NAMES=['TIM','ERA','DAS','MAX','HAM','DAN','ALI','AZA','NUR','SAM','TOM','ROM','DIM','LEV','LEO','KAT','LIZ','ANA','ADI','ERK','MIR','NIK','VIK','ARS','NAZ','GUL','EMI','BEK','KAN','AYA','IRA','OLA','YAN','VAN','GEN','ELI','MAR','TAL','ERM','NAT','KIR','RUS','IGO','OLE','ZAM','LEN','SAS','ASK','BAK','MAK','DAV','ROB','ZAR','ALA','ELA','AID','ULA','ELM','AMI','AMA','ADA','EVA','ZAK','DIL'];
 /* реальные продажи: точная цена */
 const RECORDS={
- '01|777|AAA':[1716000,'Продан на аукционе ГРС за 1 716 000 сом (2016)'],'01|888|BBB':[604000,'Продан на аукционе за 604 000 сом (2020)'],
+ '00|000|OOO':[2620000,'Уникальный номер особой серии — единственный в игре'],'01|777|AAA':[1716000,'Продан на аукционе ГРС за 1 716 000 сом (2016)'],'01|888|BBB':[604000,'Продан на аукционе за 604 000 сом (2020)'],
  '01|001|AAA':[594000,'Продан на аукционе за 594 000 сом (2016)'],'08|888|BBB':[528000,'Продан на аукционе за 528 000 сом (2020)'],
  '01|001|ATA':[478000,'Продан на аукционе за 478 000 сом (2020)'],'01|001|BBB':[446000,'Продан на аукционе за 446 000 сом (2020)'],
  '01|555|BBB':[446000,'Продан на аукционе за 446 000 сом (2020)'],'01|555|SSS':[430000,'Продан на аукционе за 430 000 сом (2020)'],
@@ -531,7 +527,7 @@ function drawButtons(){
   $('spin').disabled=poor||spinning;$('spinV').textContent=fmt(C);
   $('spin10').disabled=S.bal<C*10||spinning;$('spin10V').textContent=short(C*10)+' с';
   const l25=S.lvl<5,b25=$('spin25');b25.classList.toggle('locked',l25);b25.disabled=!l25&&(S.bal<C*25||spinning);$('spin25V').textContent=l25?'🔒 с 5 уровня':short(C*25)+' с';
-  const n=Math.min(ALLIN_MAX,Math.floor(S.bal/C)),lA=S.lvl<10,ba=$('allin');ba.classList.toggle('locked',lA);ba.disabled=!lA&&(n<1||spinning);$('allinV').textContent=lA?'🔒 с 10 уровня':n>0?n+' шт':'—';
+  const n=Math.floor(S.bal/C),lA=S.lvl<10,ba=$('allin');ba.classList.toggle('locked',lA);ba.disabled=!lA&&(n<1||spinning);$('allinV').textContent=lA?'🔒 с 10 уровня':n>0?n+' шт':'—';
   $('broke').hidden=!poor||spinning;
 }
 function drawLvl(){
@@ -558,7 +554,7 @@ function idle(){
   $('sellLast').disabled=true;$('sellLast').textContent='Продать';
 }
 function drawRecent(){
-  const r=[...S.col].sort((a,b)=>b.t-a.t).slice(0,10);
+  const r=S.col.filter(c=>!c.c).sort((a,b)=>b.t-a.t).slice(0,10);
   $('recent').innerHTML=r.length?r.map(p=>`<button class="mini" data-id="${p.id}" style="--rc:${rc(p.tier)}"><div class="pw">${itemHTML(p)}</div><div class="v"><span>${fmt(p.price)}</span><i title="${RAR[p.tier][0]}"></i></div></button>`).join(''):'<div class="hint">Здесь появятся выпавшие номера</div>';
 }
 function drawStats(){
@@ -618,21 +614,26 @@ function burst(tier){
     if(parts.length)fxRaf=requestAnimationFrame(step);else cx.clearRect(0,0,innerWidth,innerHeight)};
   step();
 }
-function multiSpin(n,title){
+function multiSpin(n,title,auto){
   const C=cost();if(spinning||n<1||S.bal<C*n)return;
   S.bal-=C*n;S.spent+=C*n;
-  const got=[];for(let i=0;i<n;i++){const p=makeItem();p.t+=i;S.col.push(p);got.push(p);track(p)}
-  got.sort((a,b)=>b.price-a.price);S.last=got[0].id;save();drawBal();showResult(got[0],true);drawRecent();drawStats();if(got[0].tier>=2)burst(got[0].tier);
-  const total=got.reduce((s,p)=>s+p.price,0),paid=C*n,cheap=got.filter(p=>p.tier===0),top=got.slice(0,10),diff=total-paid;
+  /* ва-банк: обычные номера сразу продаются, иначе сейф не поместится в базу */
+  const got=[];let autoV=0,autoN=0;
+  for(let i=0;i<n;i++){const p=makeItem();p.t+=i;track(p);if(auto&&p.tier===0){autoV+=p.price;autoN++;continue}S.col.push(p);got.push(p)}
+  if(autoN){S.bal+=autoV;S.earned+=autoV}
+  got.sort((a,b)=>b.price-a.price);if(got.length)S.last=got[0].id;save();drawBal();if(got.length)showResult(got[0],true);drawRecent();drawStats();if(got.length&&got[0].tier>=2)burst(got[0].tier);
+  const total=got.reduce((s,p)=>s+p.price,0)+autoV,paid=C*n,cheap=got.filter(p=>p.tier===0),top=got.slice(0,10),diff=total-paid;
   openSheet(`<h3>${title}</h3><p>${n} шт · потрачено ${fmt(paid)} · стоят ${fmt(total)}</p>
+    ${autoN?`<p>Обычные номера (${num(autoN)} шт) сразу проданы за ${fmt(autoV)}. В сейф попали ${num(got.length)} шт.</p>`:''}
     <div class="delta ${diff>=0?'win':'loss'}">${diff>=0?'+':'−'}${fmt(Math.abs(diff))}</div>
     ${n>10?'<p>Лучшие 10:</p>':''}
     <div class="grid2">${top.map(p=>`<div class="mini" style="--rc:${rc(p.tier)}"><div class="pw">${itemHTML(p)}</div><div class="v"><span>${fmt(p.price)}</span><i title="${RAR[p.tier][0]}"></i></div></div>`).join('')}</div>
     ${cheap.length?`<button class="opt green" id="sellCheap">Продать обычные (${cheap.length} шт)<span>+${fmt(cheap.reduce((s,p)=>s+p.price,0))}</span></button>`:''}
-    <button class="opt green" id="sellAllGot">Продать все выпавшие<span>+${fmt(total)}</span></button>
+    ${got.length?`<button class="opt green" id="sellAllGot">Продать все выпавшие<span>+${fmt(total-autoV)}</span></button>`:''}
     <button class="opt" id="ok10">Оставить в сейфе<span>${got.length} шт</span></button>`);
   $('sheet').onclick=e=>{if(e.target.closest('#sellCheap')){closeSheet();sell(cheap.map(p=>p.id))}else if(e.target.closest('#sellAllGot')){closeSheet();sell(got.map(p=>p.id))}else if(e.target.closest('#ok10'))closeSheet()};
-  if(got[0].tier>=3){toast(RAR[got[0].tier][0]+'! '+fmt(got[0].price));vibrate(80)}
+  if(got.length&&got[0].tier>=3){toast(RAR[got[0].tier][0]+'! '+fmt(got[0].price));vibrate(80)}
+  if(autoN)checkLevel();
 }
 let pending={};
 function confirmTap(key,msg){const now=Date.now();if(pending[key]&&now-pending[key]<3000){pending[key]=0;return true}pending[key]=now;toast(msg);return false}
@@ -641,9 +642,9 @@ $('spin10').addEventListener('click',()=>multiSpin(10,'10 прокруток'));
 $('spin25').addEventListener('click',()=>{if(S.lvl<5){toast('×25 откроется на 5 уровне — '+fmt(lvNeed(5))+' на балансе');return}multiSpin(25,'25 прокруток')});
 $('allin').addEventListener('click',()=>{
   if(S.lvl<10){toast('Ва-банк откроется на 10 уровне — '+fmt(lvNeed(10))+' на балансе');return}
-  const C=cost(),n=Math.min(ALLIN_MAX,Math.floor(S.bal/C));if(spinning||n<1)return;
-  if(!confirmTap('allin',`Ва-банк: ${n} прокруток за ${fmt(n*C)}. Нажмите ещё раз`)){$('allin').classList.add('arm');setTimeout(()=>$('allin').classList.remove('arm'),3000);return}
-  $('allin').classList.remove('arm');multiSpin(n,'Ва-банк');
+  const C=cost(),n=Math.floor(S.bal/C);if(spinning||n<1)return;
+  if(!confirmTap('allin',`Ва-банк на все деньги: ${num(n)} прокруток за ${fmt(n*C)}. Нажмите ещё раз`)){$('allin').classList.add('arm');setTimeout(()=>$('allin').classList.remove('arm'),3000);return}
+  $('allin').classList.remove('arm');multiSpin(n,'Ва-банк',true);
 });
 $('sellLast').addEventListener('click',()=>{const p=S.col.find(c=>c.id===S.last);if(p){sell([p.id]);$('sellLast').disabled=true;$('sellLast').textContent='Продано'}});
 $('recent').addEventListener('click',e=>{const b=e.target.closest('[data-id]');if(b)openDetail(b.dataset.id)});
@@ -663,50 +664,39 @@ function checkLevel(){
   while(S.lvl<MAXL&&S.bal>=lvNeed(S.lvl+1)){S.lvl++;const b=lvBonus(S.lvl);S.bal+=b;S.bonus=(S.bonus||0)+b;ups.push(S.lvl)}
   if(!ups.length)return;
   const last=ups[ups.length-1],sum=ups.reduce((s,n)=>s+lvBonus(n),0),unl=ups.filter(n=>UNLOCK[n]).map(n=>UNLOCK[n]);
-  setTimeout(()=>{burst(3);vibrate([50,30,50]);
+  const lvShow=()=>{if(!$('shade').hidden){setTimeout(lvShow,600);return}burst(3);vibrate([50,30,50]);
     openSheet(`<h3>Уровень ${last}!</h3><p>${ups.length>1?'Уровни '+ups.join(', ')+'. ':''}Бонус зачислен на баланс.</p>
       <div class="delta win">+${fmt(sum)}</div>${unl.length?`<p>Открыто: <b>${unl.join(', ')}</b></p>`:''}
-      <p>Следующий уровень: ${fmt(lvNeed(last+1))} на балансе, бонус ${fmt(lvBonus(last+1))}.</p><button class="cancel">Отлично</button>`)},300);
+      <p>Следующий уровень: ${fmt(lvNeed(last+1))} на балансе, бонус ${fmt(lvBonus(last+1))}.</p><button class="cancel">Отлично</button>`)};setTimeout(lvShow,300);
 }
 
 /* ===== сейф ===== */
-let cur='all',sel=new Set(),selMode=false,shown=60,kindF='all';
-const sorters={price:(a,b)=>b.price-a.price,cheap:(a,b)=>a.price-b.price,date:(a,b)=>b.t-a.t,reg:(a,b)=>code(a).localeCompare(code(b))||b.price-a.price};
-const inView=c=>(kindF==='all'||(kindF==='sim')===isSim(c))&&(cur==='all'||(cur==='none'?!c.c:c.c===cur));
-function filtered(){
-  const q=$('q').value.trim().toUpperCase().replace(/\s+/g,'');
-  return S.col.filter(c=>inView(c)&&(!q||keyStr(c).includes(q)||(!isSim(c)&&(c.d+c.l).includes(q))));
-}
+let tabC='safe',sel=new Set(),selMode=false,shown=60;
+const inCol=c=>!!c.c;
+const inView=c=>tabC==='col'?inCol(c):!inCol(c);
+function filtered(){return S.col.filter(inView)}
 function drawSafe(){
-  const view=S.col.filter(inView),items=filtered().sort(sorters[$('sort').value]);
-  $('sval').textContent=fmt(view.reduce((s,c)=>s+c.price,0));$('scnt').textContent=num(view.length)+' шт';drawStats();
-  const free=S.col.filter(c=>!c.c);$('quick').disabled=!free.length;$('quick').textContent=free.length?`Продать всё · +${fmt(free.reduce((s,c)=>s+c.price,0))}`:'Продать всё';
-  const cn=S.cols.find(c=>c.id===cur),cnt=id=>S.col.filter(c=>c.c===id).length;
-  $('cols').innerHTML=`<button data-c="all" class="${cur==='all'?'on':''}">Все<small>${S.col.length}</small></button><button data-c="none" class="${cur==='none'?'on':''}">Без коллекции<small>${free.length}</small></button>`
-    +S.cols.map(c=>`<button data-c="${c.id}" class="${cur===c.id?'on':''}">${esc(c.name)}<small>${cnt(c.id)}</small></button>`).join('')+'<button class="add" data-c="+">+ Коллекция</button>';
-  $('colbar').hidden=!cn;if(cn)$('colbar').innerHTML=`«${esc(cn.name)}»<button data-a="ren">Переименовать</button><button data-a="del">Удалить</button>`;
+  const items=filtered().sort((a,b)=>b.price-a.price),col=tabC==='col',nc=S.col.filter(inCol).length;
+  for(const x of $('tabs').children)x.classList.toggle('on',x.dataset.c===tabC);
+  $('tabs').children[1].textContent='Коллекция'+(nc?' · '+nc:'');
+  $('sval').textContent=fmt(items.reduce((s,c)=>s+c.price,0));$('scnt').textContent=num(items.length)+' шт';drawStats();
+  $('sumBtns').hidden=col;$('colHint').hidden=!col;
+  $('quick').disabled=!items.length;$('quick').textContent=items.length?`Продать всё · +${fmt(items.reduce((s,c)=>s+c.price,0))}`:'Продать всё';
   $('list').classList.toggle('selmode',selMode);
   const list=items.slice(0,shown);
-  $('list').innerHTML=list.length?list.map(c=>{const cl=c.c&&S.cols.find(x=>x.id===c.c);
-    return `<button class="row ${sel.has(c.id)?'sel':''}" data-id="${c.id}"><span class="ck"></span><div class="pw">${itemHTML(c)}</div><div class="meta"><b>${fmt(c.price)}</b>${pill(c.tier)}${cl?`<em>${esc(cl.name)}</em>`:''}</div></button>`}).join('')
+  $('list').innerHTML=list.length?list.map(c=>`<button class="row ${sel.has(c.id)?'sel':''}" data-id="${c.id}"><span class="ck"></span><div class="pw">${itemHTML(c)}</div><div class="meta"><b>${fmt(c.price)}</b>${pill(c.tier)}</div></button>`).join('')
     +(items.length>shown?`<button class="selbtn" id="more" style="width:100%">Показать ещё ${items.length-shown}</button>`:'')
-    :`<div class="empty">${S.col.length?'Ничего не найдено':'Сейф пуст. Все выпавшие номера попадают сюда.'}</div>`;
+    :`<div class="empty">${col?'В коллекции пока пусто. В сейфе нажмите «Выбрать», отметьте номера и нажмите «В коллекцию».':'Сейф пуст. Все выпавшие номера попадают сюда.'}</div>`;
   drawSelBar();
 }
 function drawSelBar(){
   $('selbar').hidden=!selMode||!$('v-safe').classList.contains('on');
-  $('selMode').classList.toggle('on',selMode);$('selMode').textContent=selMode?'Готово':'Выбрать несколько';
+  $('selMode').classList.toggle('on',selMode);$('selMode').textContent=selMode?'Готово':'Выбрать';
   $('toCol').disabled=!sel.size;$('sellSel').disabled=!sel.size;
   const v=S.col.filter(c=>sel.has(c.id)).reduce((s,c)=>s+c.price,0);
   $('sellSel').textContent=sel.size?`Продать ${sel.size} · ${short(v)}`:'Продать';$('selAll').textContent=sel.size?'Снять':'Все';
 }
-$('cols').addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(!b)return;if(b.dataset.c==='+'){newColSheet();return}cur=b.dataset.c;sel.clear();shown=60;drawSafe()});
-$('colbar').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const cn=S.cols.find(c=>c.id===cur);if(!cn)return;
-  if(b.dataset.a==='ren')renameSheet(cn);
-  else if(confirmTap('del'+cn.id,'Номера вернутся в общий сейф. Нажмите ещё раз')){S.col.forEach(c=>{if(c.c===cn.id)c.c=''});S.cols=S.cols.filter(c=>c!==cn);cur='all';save();drawSafe();toast('Коллекция удалена')}});
-$('kinds').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;kindF=b.dataset.k;for(const x of $('kinds').children)x.classList.toggle('on',x===b);sel.clear();shown=60;drawSafe()});
-$('sort').addEventListener('change',drawSafe);
-let qT=0;$('q').addEventListener('input',()=>{clearTimeout(qT);qT=setTimeout(()=>{shown=60;drawSafe()},150)});
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(!b)return;tabC=b.dataset.c;sel.clear();selMode=false;shown=60;drawSafe()});
 $('selMode').addEventListener('click',()=>{selMode=!selMode;sel.clear();drawSafe()});
 $('list').addEventListener('click',e=>{
   if(e.target.closest('#more')){shown+=60;drawSafe();return}
@@ -714,11 +704,11 @@ $('list').addEventListener('click',e=>{
   if(!selMode){openDetail(id);return}
   sel.has(id)?sel.delete(id):sel.add(id);r.classList.toggle('sel');drawSelBar()});
 $('selAll').addEventListener('click',()=>{if(sel.size)sel.clear();else filtered().forEach(c=>sel.add(c.id));drawSafe()});
-$('sellSel').addEventListener('click',()=>{if(!sel.size)return;const ids=[...sel];sel.clear();sell(ids)});
-$('toCol').addEventListener('click',()=>{if(sel.size)moveSheet([...sel])});
-$('quick').addEventListener('click',()=>{const ids=S.col.filter(c=>!c.c).map(c=>c.id);if(!ids.length)return;
-  const v=S.col.filter(c=>!c.c).reduce((s,c)=>s+c.price,0);
-  if(confirmTap('quick',`Продать ${ids.length} шт. за ${fmt(v)}? Нажмите ещё раз. Номера в коллекциях останутся`))sell(ids)});
+$('sellSel').addEventListener('click',()=>{if(!sel.size)return;const ids=S.col.filter(c=>sel.has(c.id)&&!inCol(c)).map(c=>c.id);sel.clear();selMode=false;sell(ids)});
+$('toCol').addEventListener('click',()=>{if(!sel.size)return;const set=new Set(sel);S.col.forEach(c=>{if(set.has(c.id))c.c='col'});toast(set.size+' шт. добавлено в коллекцию');sel.clear();selMode=false;save();drawSafe();drawRecent()});
+$('quick').addEventListener('click',()=>{const ids=S.col.filter(c=>!inCol(c)).map(c=>c.id);if(!ids.length)return;
+  const v=S.col.filter(c=>!inCol(c)).reduce((s,c)=>s+c.price,0);
+  if(confirmTap('quick',`Продать ${ids.length} шт. за ${fmt(v)}? Нажмите ещё раз. Коллекция не продаётся`))sell(ids)});
 
 /* ===== уровни: экран ===== */
 function drawLevels(){
@@ -765,11 +755,13 @@ $('shade').addEventListener('click',e=>{if(e.target===$('shade')||e.target.close
 {let y0=null,dy=0;const sh=$('sheet');sh.addEventListener('touchstart',e=>{y0=sh.scrollTop<=0?e.touches[0].clientY:null;dy=0},{passive:true});sh.addEventListener('touchmove',e=>{if(y0==null)return;dy=e.touches[0].clientY-y0;sh.style.transform=dy>0?'translateY('+dy+'px)':''},{passive:true});sh.addEventListener('touchend',()=>{if(y0==null)return;sh.style.transform='';y0=null;if(dy>90)closeSheet()})}
 function addCol(name){name=name.trim().slice(0,30);if(!name)return null;const c={id:'c'+Date.now().toString(36),name};S.cols.push(c);save();return c}
 function openDetail(id){
-  const p=S.col.find(c=>c.id===id);if(!p)return;const cl=p.c&&S.cols.find(x=>x.id===p.c);
-  openSheet(`<div class="det"><div><h3>${labelOf(p)}</h3><p>${placeOf(p)}${cl?' · коллекция «'+esc(cl.name)+'»':''}</p></div>
+  const p=S.col.find(c=>c.id===id);if(!p)return;const cl=inCol(p);
+  openSheet(`<div class="det"><div><h3>${labelOf(p)}</h3><p>${placeOf(p)}${cl?' · в коллекции':''}</p></div>
     <div class="pw">${itemHTML(p)}</div><div class="res">${resHTML(p)}</div>
-    <div class="row3" style="grid-template-columns:1fr 1fr"><button class="b2" id="dCol">${cl?'Другая коллекция':'В коллекцию'}</button><button class="b2" id="dSell" style="background:var(--red);color:#fff">Продать<small>+${fmt(p.price)}</small></button></div><button class="cancel">Закрыть</button></div>`);
-  $('sheet').onclick=e=>{if(e.target.closest('#dSell')){closeSheet();sell([id])}else if(e.target.closest('#dCol'))moveSheet([id])};
+    <div class="row3" style="grid-template-columns:1fr 1fr"><button class="b2" id="dCol">${cl?'Убрать из коллекции':'В коллекцию'}</button><button class="b2" id="dSell" style="background:var(--red);color:#fff">Продать<small>+${fmt(p.price)}</small></button></div><button class="cancel">Закрыть</button></div>`);
+  $('sheet').onclick=e=>{
+    if(e.target.closest('#dSell')){if(cl&&!confirmTap('cs'+id,'Номер из коллекции. Нажмите «Продать» ещё раз'))return;closeSheet();sell([id])}
+    else if(e.target.closest('#dCol')){p.c=cl?'':'col';save();closeSheet();toast(cl?'Убрано из коллекции':'Добавлено в коллекцию');if($('v-safe').classList.contains('on'))drawSafe();drawRecent()}};
 }
 function moveSheet(ids){
   const set=new Set(ids);
@@ -840,9 +832,15 @@ async function drawTop(force){
     topCache[topKind]={t:Date.now(),rows:q.docs.map(d=>Object.assign({id:d.id},d.data()))};renderTop()}
   catch(e){$('topList').innerHTML='<div class="empty">Не удалось загрузить рейтинг. Проверьте интернет.</div>'}
 }
+function itemFromLab(lab,price){let m;
+  if(m=/^(\d{2}) (\d{3}) ([A-Z]{3})$/.exec(lab))return {fmt:'new',r:m[1],d:m[2],l:m[3]};
+  if(m=/^([A-Z]) (\d{4}) ([A-Z]{2})$/.exec(lab))return OLD[m[1]]?{fmt:'old',r:m[1],d:m[2],l:m[3]}:null;
+  if(m=/^(0\d{3}) (\d{3}) (\d{3})$/.exec(lab)){const op=Object.keys(OPS).find(k=>OPS[k].pre.includes(m[1]))||'o';return {kind:'sim',op,pre:m[1],s:m[2]+m[3],cat:simCat(price||0)}}
+  return null}
+function topPlate(r){const it=r.bestLab&&itemFromLab(r.bestLab,r.best);return it?`<div class="pw tpw">${itemHTML(it)}</div>`:''}
 function renderTop(){
   const k=topKind,rows=topCache[k].rows;
-  $('topList').innerHTML=rows.length?rows.map((r,i)=>`<div class="tp ${r.id===uid?'mine':''}"><span class="n">${i<3?['🥇','🥈','🥉'][i]:i+1}</span><div class="nm">${esc(r.nick||'Игрок')}${r.id===uid?' (вы)':''}<small>Уровень ${r.lvl||1}${k==='best'&&r.bestLab?' · '+esc(r.bestLab):''}</small></div><b>${k==='rich'?num(r.rich||0)+' шт':fmt(r[k]||0)}</b></div>`).join(''):'<div class="empty">Пока никого нет</div>';
+  $('topList').innerHTML=rows.length?rows.map((r,i)=>`<div class="tp ${r.id===uid?'mine':''}"><span class="n">${i<3?['🥇','🥈','🥉'][i]:i+1}</span><div class="nm">${esc(r.nick||'Игрок')}${r.id===uid?' (вы)':''}<small>Уровень ${r.lvl||1}</small>${k==='best'?topPlate(r):''}</div><b>${k==='rich'?num(r.rich||0)+' шт':fmt(r[k]||0)}</b></div>`).join(''):'<div class="empty">Пока никого нет</div>';
 }
 $('topKind').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;topKind=b.dataset.t;for(const x of $('topKind').children)x.classList.toggle('on',x===b);drawTop()});
 $('topRef').addEventListener('click',()=>drawTop(true));
