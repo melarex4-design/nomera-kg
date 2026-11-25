@@ -1093,6 +1093,9 @@ $('aForm').addEventListener('submit',async e=>{
 $('meBtn').addEventListener('click',()=>go('acc'));
 $('aCode').addEventListener('input',()=>{if(tab==='up')$('aGo').textContent=$('aCode').value.trim()?'Создать аккаунт с прогрессом':'Создать аккаунт'});
 
+/* автообновление: телефон держит старую страницу в кэше до 10 минут — проверяем версию на сервере */
+const VER='4';
+fetch(location.pathname+'?nocache='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(h=>{const m=h.match(/const VER='(\d+)'/);if(m&&m[1]!==VER&&!sessionStorage.getItem('upd'+m[1])){sessionStorage.setItem('upd'+m[1],1);flush().finally(()=>location.replace(location.pathname+'?v='+m[1]))}}).catch(()=>{});
 /* запуск */
 applyState(FRESH());
 $('sPlate').innerHTML=plateHTML({fmt:'new',r:'01',d:'777',l:'KGZ'});setTab('in');
