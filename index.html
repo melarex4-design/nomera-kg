@@ -1128,7 +1128,7 @@ const MAXL=200;
 const levelFor=b=>{let n=1;while(n<MAXL&&b>=lvNeed(n+1))n++;return n};
 
 /* ===== состояние ===== */
-const GIFTS=[{id:'g4',nick:'9609',bal:0,items:[{kind:'sim',op:'b',pre:'0777',s:'190710'},{kind:'sim',op:'m',pre:'0999',s:'999999'}]},{id:'g5',nick:'9609',bal:0,items:[{fmt:'name',r:'01',l:'LOVE'},{fmt:'name',r:'01',l:'TEMA'},{fmt:'name',r:'01',l:'O4KO'}]},{id:'g7',nick:'9609',bal:0,setBal:10000000},{id:'g10',nick:'kham',bal:0,items:[{kind:'car',m:'kcarbon',y:2025,k:10,b:'black'}]},{id:'g8',nick:'9609',bal:67676676},{id:'g9',nick:'9609',bal:0,setBal:67676676676,items:[{kind:'sim',op:'o',pre:'0700',s:'676767'},{fmt:'name',r:'01',l:'676767'},{fmt:'name',r:'01',l:'676SIX'}]}];
+const GIFTS=[{id:'g4',nick:'9609',bal:0,items:[{kind:'sim',op:'b',pre:'0777',s:'190710'},{kind:'sim',op:'m',pre:'0999',s:'999999'}]},{id:'g5',nick:'9609',bal:0,items:[{fmt:'name',r:'01',l:'LOVE'},{fmt:'name',r:'01',l:'TEMA'},{fmt:'name',r:'01',l:'O4KO'}]},{id:'g7',nick:'9609',bal:0,setBal:10000000},{id:'g10',nick:'kham',bal:0,items:[{kind:'car',m:'kcarbon',y:2025,k:10,b:'black',c:''}]},{id:'g8',nick:'9609',bal:67676676},{id:'g9',nick:'9609',bal:0,setBal:67676676676,items:[{kind:'sim',op:'o',pre:'0700',s:'676767'},{fmt:'name',r:'01',l:'676767'},{fmt:'name',r:'01',l:'676SIX'}]}];
 let uid=null;const PV=4,DEV=['hT5cqzjwwAR6TaxWb9GsMaRmtl03'];
 const FRESH=()=>({pv:PV,bal:START,col:[],cols:[],spent:0,earned:0,bonus:0,last:null,n:0,best:null,mode:'plate',lvl:levelFor(START),season:3,pity:0,pt:0,box:'blue',ach:[]});
 let S=FRESH();
@@ -1156,11 +1156,13 @@ function rehydrate(st){st.col=(st.col||[]).filter(p=>p&&p.id);
   if(!Array.isArray(st.ach))st.ach=[];
   /* подарки от разработчика: зачисляются один раз при входе игрока */
   if(!Array.isArray(st.gifts))st.gifts=[];
+  for(const p of st.col)if(p.m==='kcarbon'&&p.c==='col')p.c='';
   const nk=String(st.nick||(fb&&fb.auth.currentUser?mailNick(fb.auth.currentUser.email):'')).toLowerCase();
   for(const g of GIFTS)if(nk===g.nick&&!st.gifts.includes(g.id)){st.bal+=g.bal;if(g.setBal!=null){st.bal=g.setBal;st.lvl=levelFor(st.bal)}st.gifts.push(g.id);st.giftNote=(st.giftNote||0)+g.bal;
-    for(const it of g.items||[]){const p=Object.assign({},it,{id:'gift'+g.id+uid6(),t:Date.now(),c:'col'}),v=evalAny(p);Object.assign(p,v);p.tier=tierAny(p);st.col.push(p);st.giftItems=(st.giftItems||[]).concat(labelOf(p))}}
+    for(const it of g.items||[]){const p=Object.assign({c:'col'},it,{id:'gift'+g.id+uid6(),t:Date.now()}),v=evalAny(p);Object.assign(p,v);p.tier=tierAny(p);st.col.push(p);st.giftItems=(st.giftItems||[]).concat(labelOf(p))}}
   st.lvl=Math.max(st.lvl||1,1);return st}
-function unpackState(code){code=String(code||'').trim();if(!code.startsWith('KG1:'))return null;try{const st=JSON.parse(decodeURIComponent(escape(atob(code.slice(4)))));if(!Array.isArray(st.col)||typeof st.bal!=='number')return null;return rehydrate(st)}catch(e){return null}}
+let LOAD_ERR='';
+function unpackState(code){code=String(code||'').trim();if(!code.startsWith('KG1:'))return null;try{const st=JSON.parse(decodeURIComponent(escape(atob(code.slice(4)))));if(!Array.isArray(st.col)||typeof st.bal!=='number')return null;return rehydrate(st)}catch(e){LOAD_ERR=String(e&&e.message||e);return null}}
 addEventListener('pagehide',()=>flush());document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flush()});
 
 /* ===== отрисовка ===== */
@@ -1497,7 +1499,7 @@ function drawAcc(){
   <h2>Достижения · ${S.ach.length} из ${ACH.length}</h2><div class="ach">${ACH.map(([id,t,d])=>`<div class="${S.ach.includes(id)?'ok':''}">${t}<small>${d}</small></div>`).join('')}</div>
   <div class="accb"><button class="opt" id="pPlay">Крутить<span>›</span></button><button class="opt" id="pRules">Как считается цена<span>›</span></button><button class="opt" id="pPass">Сменить пароль<span>›</span></button>
   <div class="new" id="pPassBox" hidden><input class="inp" id="pNew" type="password" placeholder="Новый пароль" autocomplete="new-password"><button id="pPassGo">ОК</button></div>
-  <button class="opt danger" id="pOut">Выйти из аккаунта<span></span></button></div>`;
+  <button class="opt danger" id="pOut">Выйти из аккаунта<span></span></button></div><p class="hint" style="text-align:center;margin:0 0 20px">Версия игры ${VER}</p>`;
 }
 $('acc').addEventListener('click',async e=>{
   const b=e.target.closest('.acc-best[data-id]');if(b){openDetail(b.dataset.id);return}
@@ -1551,8 +1553,9 @@ function applyState(st){
   if($('v-safe').classList.contains('on'))drawSafe();if($('v-lvl').classList.contains('on'))drawLevels();if($('v-acc').classList.contains('on'))drawAcc();
 }
 function cloudSave(){if(!uid||!fb)return;dirty=true;clearTimeout(cloudT);cloudT=setTimeout(flush,2500)}
+let SAVE_BLOCK=false;
 async function flush(){
-  if(!dirty||!uid||!fb)return;dirty=false;clearTimeout(cloudT);
+  if(SAVE_BLOCK||!dirty||!uid||!fb)return;dirty=false;clearTimeout(cloudT);
   const data=packState(S);
   if(data.length>950000){toast('Сейф слишком большой — продайте часть номеров, иначе прогресс не сохранится');dirty=true;return}
   try{await fb.db.collection('users').doc(uid).set({nick:S.nick||'',state:data,bal:S.bal,lvl:S.lvl,updated:firebase.firestore.FieldValue.serverTimestamp()})}
@@ -1619,7 +1622,7 @@ $('meBtn').addEventListener('click',()=>go('acc'));
 $('aCode').addEventListener('input',()=>{if(tab==='up')$('aGo').textContent=$('aCode').value.trim()?'Создать аккаунт с прогрессом':'Создать аккаунт'});
 
 /* автообновление: телефон держит старую страницу в кэше до 10 минут — проверяем версию на сервере */
-const VER='34';
+const VER='35';
 fetch(location.pathname+'?nocache='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(h=>{const m=h.match(/const VER='(\d+)'/);if(m&&m[1]!==VER&&!sessionStorage.getItem('upd'+m[1])){sessionStorage.setItem('upd'+m[1],1);flush().finally(()=>location.replace(location.pathname+'?v='+m[1]+'&t='+Date.now()))}}).catch(()=>{});
 /* запуск */
 applyState(FRESH());
@@ -1633,7 +1636,7 @@ else{
     uid=u.uid;LK='kg_u_'+uid;$('sMsg').textContent='Загружаем ваш сейф…';$('splash').hidden=false;
     try{
       const d=await fb.db.collection('users').doc(uid).get();
-      if(d.exists){const st=unpackState(d.data().state)||FRESH();if(!st.nick)st.nick=d.data().nick||mailNick(u.email);if(st.giftNote!=null||st.giftItems){const g=st.giftNote||0,its=st.giftItems||[];delete st.giftNote;delete st.giftItems;const tx=[g?'+'+fmt(g):'',...its].filter(Boolean).join(', ');if(tx)setTimeout(()=>toast('Подарок от разработчика: '+tx),1500)}applyState(st);dirty=true;flush();setTimeout(()=>{checkLevel();drawBal();save()},800)}
+      if(d.exists){const st0=unpackState(d.data().state);if(!st0&&String(d.data().state||'').startsWith('KG1:')){SAVE_BLOCK=true;toast('Не удалось открыть сейф ('+LOAD_ERR+'). Ничего не сохраняем — напишите разработчику');$('splash').hidden=true;return}const st=st0||FRESH();if(!st.nick)st.nick=d.data().nick||mailNick(u.email);if(st.giftNote!=null||st.giftItems){const g=st.giftNote||0,its=st.giftItems||[];delete st.giftNote;delete st.giftItems;const tx=[g?'+'+fmt(g):'',...its].filter(Boolean).join(', ');if(tx)setTimeout(()=>toast('Подарок от разработчика: '+tx),1500)}applyState(st);dirty=true;flush();setTimeout(()=>{checkLevel();drawBal();save()},800)}
       else{applyState(pendSt?rehydrate(pendSt):Object.assign(FRESH(),{nick:mailNick(u.email)}));dirty=true;await flush()}
       toast(pendSt?'Аккаунт создан. Добро пожаловать, '+S.nick+'!':'С возвращением, '+(S.nick||'игрок')+'!');
     }catch(x){
