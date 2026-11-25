@@ -427,7 +427,8 @@ function rawPlate(old){
 }
 /* именные номера: выдаются лично, в прокрутке не выпадают */
 const NAMED={SAYAN:2620000};
-const evalPlate=p=>p.fmt==='name'?valueName(p.r,p.l):p.fmt==='old'?valueOld(p.r,p.d,p.l):valueNew(p.r,p.d,p.l);
+const UNIQ={'00|000|OOO':[10000000,'Особый номер 00 KG 000 OOO — единственный в игре']};
+const evalPlate=p=>UNIQ[p.r+'|'+p.d+'|'+p.l]&&p.fmt==='new'?{price:UNIQ[p.r+'|'+p.d+'|'+p.l][0],f:['Особый номер','Единственный в игре'],off:0,note:UNIQ[p.r+'|'+p.d+'|'+p.l][1]}:p.fmt==='name'?valueName(p.r,p.l):p.fmt==='old'?valueOld(p.r,p.d,p.l):valueNew(p.r,p.d,p.l);
 /* чем дороже номер, тем реже выпадает (цены от этого не меняются) */
 const ALPHA=.7,FLOOR=1500,LUCK_DIG=.1,LUCK_SAME=.015,LUCK_WORD=.05,LUCK_OLD=.08;
 const uid6=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
@@ -605,7 +606,7 @@ const kindOf=p=>isCar(p)?'car':isSim(p)?'sim':p.fmt==='name'?'name':'plate';
 const evalAny=p=>isCar(p)?evalCar(p):isSim(p)?evalSim(p):evalPlate(p);
 const tierAny=p=>isCar(p)?tierCar(p):isSim(p)?tierSim(p.price):p.fmt==='name'&&!NAMED[p.l]?tierName(p.price):tierOf(p.price);
 const code=p=>isCar(p)?'car':isSim(p)?'z'+p.op:p.fmt==='old'?OLD[p.r][0]:p.r;
-const placeOf=p=>isCar(p)?(BOXES[p.b]||BOXES.blue).n+' контейнер':isSim(p)?OPS[p.op].n+' · '+OPS[p.op].cat[p.cat||0]:REG[code(p)]+(p.fmt==='old'?' · старый формат':p.fmt==='name'?' · именной':'');
+const placeOf=p=>isCar(p)?(BOXES[p.b]||BOXES.blue).n+' контейнер':isSim(p)?OPS[p.op].n+' · '+OPS[p.op].cat[p.cat||0]:(REG[code(p)]||'Особый номер')+(p.fmt==='old'?' · старый формат':p.fmt==='name'?' · именной':'');
 const keyStr=c=>isCar(c)?c.m+c.y+c.k:isSim(c)?c.pre+c.s:c.r+(c.d||'')+c.l;
 const labelOf=p=>isCar(p)?(CARS[p.m]||CARS.vaz)[0]+' '+p.y:isSim(p)?p.pre+' '+p.s.slice(0,3)+' '+p.s.slice(3):(p.fmt==='name'?p.r+' '+p.l:p.r+' '+p.d+' '+p.l);
 /* предмет для топа и профиля: только то, из чего цена считается заново */
@@ -1094,7 +1095,7 @@ $('meBtn').addEventListener('click',()=>go('acc'));
 $('aCode').addEventListener('input',()=>{if(tab==='up')$('aGo').textContent=$('aCode').value.trim()?'Создать аккаунт с прогрессом':'Создать аккаунт'});
 
 /* автообновление: телефон держит старую страницу в кэше до 10 минут — проверяем версию на сервере */
-const VER='4';
+const VER='5';
 fetch(location.pathname+'?nocache='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(h=>{const m=h.match(/const VER='(\d+)'/);if(m&&m[1]!==VER&&!sessionStorage.getItem('upd'+m[1])){sessionStorage.setItem('upd'+m[1],1);flush().finally(()=>location.replace(location.pathname+'?v='+m[1]))}}).catch(()=>{});
 /* запуск */
 applyState(FRESH());
