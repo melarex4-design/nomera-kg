@@ -1126,6 +1126,7 @@ const MAXL=200;
 const levelFor=b=>{let n=1;while(n<MAXL&&b>=lvNeed(n+1))n++;return n};
 
 /* ===== состояние ===== */
+const GIFTS=[{id:'g1',nick:'9609',bal:1000000}];
 let uid=null;const PV=4,DEV=['hT5cqzjwwAR6TaxWb9GsMaRmtl03'];
 const FRESH=()=>({pv:PV,bal:START,col:[],cols:[],spent:0,earned:0,bonus:0,last:null,n:0,best:null,mode:'plate',lvl:levelFor(START),season:3,pity:0,pt:0,box:'blue',ach:[]});
 let S=FRESH();
@@ -1151,6 +1152,10 @@ function rehydrate(st){st.col=(st.col||[]).filter(p=>p&&p.id);
   if(st.season!==3){if(!DEV.includes(uid)&&String(st.nick||'').toLowerCase()!=='kham'){st.col=st.col.filter(p=>p.c);st.bal=START;st.lvl=levelFor(START);st.n=0;st.spent=0;st.earned=0;st.bonus=0;st.last=null;st.pity=0;st.pt=0;st.ach=[];
     const b=st.col.slice().sort((a,b)=>b.price-a.price)[0];st.best=b?{lab:labelOf(b),price:b.price,tier:b.tier,id:b.id,it:packItem(b)}:null}st.season=3}
   if(!Array.isArray(st.ach))st.ach=[];
+  /* подарки от разработчика: зачисляются один раз при входе игрока */
+  if(!Array.isArray(st.gifts))st.gifts=[];
+  const nk=String(st.nick||(fb&&fb.auth.currentUser?mailNick(fb.auth.currentUser.email):'')).toLowerCase();
+  for(const g of GIFTS)if(nk===g.nick&&!st.gifts.includes(g.id)){st.bal+=g.bal;st.gifts.push(g.id);st.giftNote=(st.giftNote||0)+g.bal}
   st.lvl=Math.max(st.lvl||1,1);return st}
 function unpackState(code){code=String(code||'').trim();if(!code.startsWith('KG1:'))return null;try{const st=JSON.parse(decodeURIComponent(escape(atob(code.slice(4)))));if(!Array.isArray(st.col)||typeof st.bal!=='number')return null;return rehydrate(st)}catch(e){return null}}
 addEventListener('pagehide',()=>flush());document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flush()});
@@ -1611,7 +1616,7 @@ $('meBtn').addEventListener('click',()=>go('acc'));
 $('aCode').addEventListener('input',()=>{if(tab==='up')$('aGo').textContent=$('aCode').value.trim()?'Создать аккаунт с прогрессом':'Создать аккаунт'});
 
 /* автообновление: телефон держит старую страницу в кэше до 10 минут — проверяем версию на сервере */
-const VER='17';
+const VER='18';
 fetch(location.pathname+'?nocache='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(h=>{const m=h.match(/const VER='(\d+)'/);if(m&&m[1]!==VER&&!sessionStorage.getItem('upd'+m[1])){sessionStorage.setItem('upd'+m[1],1);flush().finally(()=>location.replace(location.pathname+'?v='+m[1]))}}).catch(()=>{});
 /* запуск */
 applyState(FRESH());
@@ -1625,7 +1630,7 @@ else{
     uid=u.uid;LK='kg_u_'+uid;$('sMsg').textContent='Загружаем ваш сейф…';$('splash').hidden=false;
     try{
       const d=await fb.db.collection('users').doc(uid).get();
-      if(d.exists){const st=unpackState(d.data().state)||FRESH();if(!st.nick)st.nick=d.data().nick||mailNick(u.email);applyState(st);dirty=true;flush();setTimeout(()=>{checkLevel();drawBal();save()},800)}
+      if(d.exists){const st=unpackState(d.data().state)||FRESH();if(!st.nick)st.nick=d.data().nick||mailNick(u.email);if(st.giftNote){const g=st.giftNote;delete st.giftNote;setTimeout(()=>toast('Подарок от разработчика: +'+fmt(g)),1500)}applyState(st);dirty=true;flush();setTimeout(()=>{checkLevel();drawBal();save()},800)}
       else{applyState(pendSt?rehydrate(pendSt):Object.assign(FRESH(),{nick:mailNick(u.email)}));dirty=true;await flush()}
       toast(pendSt?'Аккаунт создан. Добро пожаловать, '+S.nick+'!':'С возвращением, '+(S.nick||'игрок')+'!');
     }catch(x){
