@@ -29,7 +29,7 @@ header{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;align-i
 .view{display:none}.view.on{display:block}
 .seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--card);border-radius:12px;padding:3px;gap:3px}
 .seg button{border-radius:10px;min-height:40px;font-weight:600;font-size:15px;color:var(--mut)}
-.seg button.on{background:var(--card2);color:var(--ink)}
+.seg button.on{background:var(--card2);color:var(--ink)}.seg button.locked{opacity:.5;font-size:13px}
 /* номер (SVG — пропорции как у настоящего знака) */
 .pw{width:100%;container-type:inline-size}
 .plate{display:block;width:100%;height:auto}
@@ -591,7 +591,7 @@ function boxSVG(b,open){const B=BOXES[b],rib=[...Array(14)].map((_,i)=>`<rect x=
 ${door(46,'dl')}${door(260,'dr')}<rect x="34" y="18" width="452" height="14" rx="4" fill="${B.d}"/><rect x="34" y="218" width="452" height="14" rx="4" fill="${B.d}"/>
 <text x="260" y="246" font-size="0">${B.n}</text></svg>`}
 /* ===== именные номера (01 KG ARTEM) ===== */
-const NAME_COST=100000;
+const NAME_COST=100000,NAME_MIN=120000;
 /* надписи из 4–7 латинских букв; цена фиксированная, как у одинаковых номеров на торгах */
 const NW={};
 const nwAdd=(cat,price,list)=>list.split(' ').forEach(w=>NW[w]=[cat,price]);
@@ -601,13 +601,20 @@ nwAdd(1,150000,'ARTEM OLESIA SAYAKAT AKYLAI');
 nwAdd(2,200000,'KHAM BOSS KING KHAN BARS AKULA BURKUT ALTYN BAATYR KAPITAN GENERAL MAJOR LIDER PREMIUM BISHKEK');
 nwAdd(2,350000,'SULTAN LEGENDA KOROL IMPERIA');
 nwAdd(3,600000,'TENGRI');nwAdd(3,800000,'MANAS');nwAdd(3,900000,'KYRGYZ');
+/* ещё слова и имена (латиницей, до 7 букв) */
+nwAdd(0,100000,'STO GAI DPS AVTOSHK STRAH SILA VOLK TIGR LEV ORYOL BURAN TAIFUN SHTORM PULYA SNAIPER GROM MOLNIYA ZVER DEMON ANGEL KOT PES MAMA PAPA LUBOV DRUZYA KAIF BRATAN BRATVA DRUJBA SEMYA DOM KVARTAL RAION GOROD STOLICA SEVER YUG ZAPAD VOSTOK UTRO NOCH DEN VECHER OGON VODA ZEMLYA NEBO LUNA ZVEZDY MIR VOINA POBEDA SLAVA CHEST SUDBA SCHAST REAL FAKE CHILL VAIB VIBE KRASAVA TOPCHIK GANGSTA FLEX SWAG HYPE DRIP LOL OKAY YES NO STOP GO WOW OMG BRO BRUH SIS FAM CREW TEAM SQUAD CLAN HOUSE ROAD CITY TOWN STREET PARK CLUB BAR CAFE PIZZA BURGER SUSHI SHAURMA PLOV MANTY LAGMAN BESH KUMYS KYMYZ CHAI KOFEIN SAHAR MED LIMON ARBUZ DYNYA YABLOKO GRUSHA VISHNYA APPLE BANANA MANGO KIWI CHERRY HONEY SUGAR CANDY MONEY CASH DOLLAR EURO SOM DENGI BABKI KESH BANK KREDIT BIZNES OFIS RABOTA SHEF NACHALO KONEC START FINISH PLAN IDEYA MECHTY CEL PUT DOROGI SKORO BYSTRO TIHO GROMKO JOLDOO JOL KUCH AKYL JAKSHY JAMAN ONOI KYIYN ESEN SALAMAT RAHMAT KOSH ALGA OLJO BAKUBAT TUULGAN ATA ENE APA BAIKE EJE INI UKA KYZ BALA JIGIT KELIN KUDA');
+nwAdd(0,100000,'ALATOO NARYN TALAS OSH BATKEN CHUY TOKMOK KARAKOL ISSYK KANT BALYKCH KOCHKOR SUUSAMR ARSLANB JALAL UZGEN KARABAL KEMIN BOKONB AT BASH TONG CHOLPON TAMGA BOSTERI KORDAI ASTANA ALMATY MOSKVA DUBAI LONDON PARIS TOKYO SEOUL ISTANBL BERLIN MILAN ROMA MADRID KAZAN SOCHI KRYM USA KOREA JAPAN CHINA TURKEY RUSSIA');
+nwAdd(1,100000,'AIDA AIZHAN AIKOL AIPERI AIJAN AISULU ALTYNAI ANARA ASEMA BEGIMAI BERMET CHOLPON DINARA ELMIRA GULNARA GULIZA JAMILA JIBEK KANYKEI KUNDUZ MERIM MEERIM NAZIRA NURAIM NURIZA ROZA SAIKAL SEZIM UMUT ZHANAR ZHAZGUL AKMAL ALMAZ ARSLAN ASKAR AZIZ BAIEL BEKTUR BOLOT CHYNGYZ DASTAN DOOLOT EMIL ERBOL ERJAN ISLAM JAKSHYL KADYR KUBAT KURMAN MANSUR MEDER MURAT NURDIN NURSULT OMURBEK RAMIS SANJAR SYIMYK TALGAT TILEK ULUKBEK URMAT ZAMIR ZHENISH ADIL AKYL ALIBEK AZIRET BAKTYBK BEKSULT ELDIYAR ISMAIL KAIRAT KALYS NURISLA RUSTAM SULAIMN TEMIRLN ALEKSAN ANDREI ANTON ARSENII BORIS DENIS EGOR EVGENII FEDOR GLEB GRIGORI IGOR ILYA KIRILL KONSTAN LEONID MARK MATVEI MIKHAIL NIKOLAI OLEG PAVEL PETR ROMAN SERGEI STEPAN TIMOFEI VADIM VALERII VIKTOR VLAD YAROSLV YURII ZAKHAR ALENA ALISA ANASTAS ANGELIN ANNA ARINA DARYA EKATER ELENA EVA IRINA KARINA KIRA KSENIA LILIA MARIA MARINA MILANA NADEZHD NATALYA OLGA POLINA SVETA TATYANA ULYANA VALERIA VARVARA VERONIK VIKTORI YANA YULIA ZLATA JOHN MIKE ALEX MAX DAVID KEVIN BRIAN JACK HARRY LEO NOAH LIAM OLIVER JAMES LUCAS ETHAN EMMA MIA SOPHIA AVA LILY CHLOE GRACE ROSE KATE AMELIA');
+nwAdd(2,200000,'GKNB FSB MVD KGB FBI CIA SWAT SPECNAZ ARMIYA POLICE PROKUR SUD DEPUTAT MINISTR MER AKIM PREZIK SHERIF AGENT ALFA ALPHA OMEGA DELTA SIGMA BOSSKG KINGKG VIP VIPKG ELITE ELITA LUXURY LUX GOLD ZOLOTO PLATINA DIAMOND BRILLI MONSTER BEAST TITAN ATLAS ZEUS ODIN THOR KRAKEN DRAGON DRAKON FENIKS PHOENIX VIPER COBRA KOBRA PANTERA JAGUAR BERKUT SOKOL ORLAN TIGER WOLF LION EAGLE FALCON SHARK HUNTER SNIPER GHOST SHADOW NINJA SAMURAI SHOGUN VIKING SPARTA RIMSKY NOMAD KOCHEVN KAGAN KHAGAN BEK BII MURZA EMIR SHAH PASHA BOSSBOS BIGBOSS DON PAHAN AVTORIT LEGEND HERO CHAMP CHEMP CHAMPIO WINNER POBEDIT NUMBER1 TOP1 NO1 ONE BEST');
+nwAdd(2,350000,'PREZIDN PRESIDE KOROLEV IMPERAT TSAR CAR KAGANAT MILLION MILLIAR BILLION KESHKA');
+nwAdd(3,700000,'KYRGYZS ALATOOO');
 const NCAT=['Надпись','Имя','Крутая надпись','Легендарная надпись'];
 const DIGS='0123456789',ALNUM=LET+DIGS;
 const rnd=(a,n)=>Array.from({length:n},()=>pick(a)).join('');
 const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 /* цена именного номера считается по самой надписи: одна и та же надпись всегда стоит одинаково */
 function valueName(r,l){
-  const N=(price,what)=>({f:['Именной номер',what],off:0,price,note:price<=100000?'Обычная надпись — стоит как прокрутка':price<300000?'Красивая надпись — в плюс':'Редкая надпись — большой плюс'});
+  const N=(price,what)=>(price=Math.max(NAME_MIN,price),{f:['Именной номер',what],off:0,price,note:price<=NAME_MIN?'Обычная надпись — '+short(NAME_MIN)+', дороже прокрутки':price<300000?'Красивая надпись':'Редкая надпись — большой плюс'});
   if(NAMED[l])return {f:['Именной номер','Единственный в игре'],off:0,note:'Именной номер — выдан лично, в прокрутке не выпадает',price:NAMED[l]};
   const n=l.length;let m;
   if(/^(.)\1*$/.test(l)){const d=/\d/.test(l[0]);
@@ -622,8 +629,9 @@ function valueName(r,l){
   if(/^[A-Z](\d)\1{2,5}$/.test(l)||/^(\d)\1{2,5}[A-Z]$/.test(l))return N(200000,'Буква и одинаковые цифры');
   if(n>=4&&l===[...l].reverse().join(''))return N(150000,'Зеркальная надпись');
   if(m=/^([A-Z]{3,6}?)(\d{1,3})$/.exec(l)){const w=NW[m[1]];if(w)return N(Math.max(100000,w[1]),NCAT[w[0]]+' + цифры')}
+  for(let k=n-1;k>=Math.max(2,n-2);k--){const w=NW[l.slice(0,k)]||NW[l.slice(n-k)];if(w&&w[0]>=1)return N(Math.max(100000,Math.round(w[1]*.8/1000)*1000),NCAT[w[0]]+' + буквы')}
   return N(100000,/^\d+$/.test(l)?'Цифры':'Надпись')}
-const tierName=p=>p>=700000?4:p>=300000?3:p>=150000?2:p>100000?1:0;
+const tierName=p=>p>=700000?4:p>=300000?3:p>=200000?2:p>NAME_MIN?1:0;
 const NREG=['01','01','01','01','08','08','02','09','04','06','03','05','07'];
 const W=c=>Object.keys(NW).filter(k=>NW[k][0]===c);
 /* что может выпасть и как часто (вес) */
@@ -633,6 +641,7 @@ const NGEN=[
  [8,()=>pick(W(0))],[18,()=>pick(W(1))],
  [6,()=>{const w=pick(Object.keys(NW).filter(k=>NW[k][0]<=1&&k.length<=6));return w+rnd(DIGS,ri(1,Math.min(3,7-w.length)))}],
  [4,()=>pick(W(2))],
+ [5,()=>{const w=pick(Object.keys(NW).filter(k=>k.length>=2&&k.length<=5)),x=rnd(LET,ri(1,Math.min(2,7-w.length)));return Math.random()<.6?w+x:x+w}],
  [3,()=>{const k=ri(2,3),u=k===2?pick(LET)+pick(DIGS):rnd(ALNUM,3);return u.repeat(k===2?ri(2,3):2)}],
  [3,()=>{const a=pick(LET),d=pick(DIGS).repeat(ri(3,6));return Math.random()<.7?a+d:d+a}],
  [1,()=>{const a=ri(2,4);return pick(LET).repeat(a)+pick(DIGS).repeat(ri(2,7-a))}],
@@ -666,7 +675,8 @@ const hydrate=q=>{const p={...q},v=evalAny(p);Object.assign(p,v);if(isSim(p))p.c
 /* 2 уровень — 70 000 на балансе, каждый следующий шаг на 10 000 больше предыдущего; бонус 5 000 × (уровень − 1) */
 const lvNeed=n=>n<=1?0:n<=50?70000+10000*(n-2)*(n-1)/2:Math.round(11830000*Math.pow(1.03,n-50)/1000)*1000;
 const lvBonus=n=>n<=50?5000*(n-1):Math.round(lvNeed(n)*.01/1000)*1000;
-const UNLOCK={5:'Прокрутка ×25',10:'Ва-банк'};
+const UNLOCK={5:'Прокрутка ×25',10:'Ва-банк',20:'Именные номера',40:'Машины'};
+const MODE_LVL={name:20,car:40};
 const MAXL=200;
 const levelFor=b=>{let n=1;while(n<MAXL&&b>=lvNeed(n+1))n++;return n};
 
@@ -733,7 +743,7 @@ function drawButtons(){
   const pv=false;$('pity').hidden=true;
   if(pv){const t=S.pt||65,left=Math.max(1,t-(S.pity||0));$('pity').innerHTML=`<span>Дорогой номер (от ${short(PITY_MIN)}) гарантирован через <b>${left}</b> ${left%10===1&&left%100!==11?'прокрутку':left%10>=2&&left%10<=4&&(left%100<10||left%100>=20)?'прокрутки':'прокруток'}</span><span class="bar"><i style="width:${Math.min(100,(S.pity||0)/t*100).toFixed(1)}%"></i></span>`}
 }
-function drawLvl(){
+function drawLvl(){drawModes();
   const n=S.lvl,a=lvNeed(n),b=lvNeed(n+1),k=n>=MAXL?1:Math.max(0,Math.min(1,(S.bal-a)/(b-a)));
   $('lvN').textContent=n;$('lvBar').style.width=(k*100).toFixed(1)+'%';
   $('lvT').textContent=n>=MAXL?'Максимальный уровень':`До ${n+1} ур.: ${short(b)} с`;
@@ -754,7 +764,7 @@ function idle(){
   const m=S.mode,B=BOXES[S.box||'blue'];
   $('big').innerHTML=m==='car'?boxSVG(S.box||'blue'):itemHTML(m==='sim'?{kind:'sim',op:'b',pre:'0777',s:'777777',cat:4}:m==='name'?{fmt:'name',r:'01',l:'ARTEM'}:{fmt:'new',r:'01',d:'919',l:'RRR'});
   $('res').innerHTML=`<div class="hint">${m==='car'?`${B.n} контейнер: машины от ${short(Math.min(...Object.keys(B.pool).map(k=>carPrice(k,CARS[k][2]))))} до ${short(Math.max(...Object.keys(B.pool).map(k=>carPrice(k,CARS[k][3]))))} сом. Чаще выпадают машины около цены контейнера, редко — намного дороже.`
-    :m==='name'?'Любая надпись от 1 до 7 знаков: буквы, цифры, M6M6M6, KG01, BBB, A777, имена. Обычная надпись стоит как прокрутка — 100 000, в минус не уйти. Красивые — 150–450 тыс., одна цифра, 7 одинаковых и легендарные — до 1 000 000.'
+    :m==='name'?'Любая надпись от 1 до 7 знаков: буквы, цифры, слова, имена, GKNB, M6M6, KG01, BBB, A777. Любой именной номер стоит от 120 000 — в минус не уйти. Красивые — 150–450 тыс., одна цифра, 7 одинаковых и легендарные — до 1 000 000.'
     :`Крутите и собирайте ${m==='sim'?'красивые номера телефонов':'госномера'}. Цена — по прайсу nomer.srs.kg и реальным продажам, подробнее в «Аккаунт» → «Как считается цена».`}</div>`;
   $('sellLast').disabled=true;$('sellLast').textContent='Продать';
 }
@@ -959,7 +969,7 @@ function rulesSheet(){
   <h4>Стоимость прокрутки</h4><ul><li>Госномер — ${fmt(COST)}, сим-карта — ${fmt(SIM_COST)}, именной номер — ${fmt(NAME_COST)}.</li>
   <li>Контейнеры: ${Object.values(BOXES).map(B=>B.n.toLowerCase()+' — '+fmt(B.cost)).join(', ')}.</li>
   <li>Госномера, сим-карты и машины: цена прокрутки чуть выше средней стоимости выпадающего, в плюс выводят редкие дорогие выпадения. Именной номер никогда не стоит дешевле прокрутки.</li></ul>
-  <h4>Именные номера</h4><ul><li>Любая надпись до 7 знаков из латинских букв и цифр. Случайные буквы и слова (XKTRA, SALAM, TURBO…) — 70 000, имя (AIBEK, NURLAN…) — 100 000, ARTEM, OLESIA — 150 000, имя с цифрами — 80 % цены имени.</li>
+  <h4>Именные номера</h4><ul><li>Открываются с 20 уровня, машины — с 40 уровня.</li><li>Любая надпись до 7 знаков из латинских букв и цифр, больше 600 слов и имён. Любой именной номер стоит от 120 000. ARTEM, OLESIA — 150 000; GKNB, FSB, BOSS, KING, DRAGON… — 200 000; SULTAN, LEGENDA, PREZIDN — 350 000.</li>
   <li>Одинаковые буквы: BB — 150 000, BBB — 200 000, BBBB — 250 000 … BBBBBB — 400 000 (A на 25 % дороже). Одна буква — 400 000, A — 600 000.</li>
   <li>KG + цифры (KG12) — 150 000, красивые (KG01, KG777, KG1) — 300 000. Одинаковые цифры: 77 — 300 000 и дороже. Одна цифра — 500 000, 7 — 800 000, 1 — 1 000 000.</li>
   <li>Крутые надписи (BOSS, KING, KHAN, BISHKEK…) — 200 000, SULTAN, LEGENDA — 350 000.</li><li>TENGRI — 600 000, MANAS — 800 000, KYRGYZ — 900 000, семь одинаковых букв — 500 000, AAAAAAA — 1 000 000.</li></ul>
@@ -1063,12 +1073,13 @@ for(const b of document.querySelectorAll('nav button'))b.addEventListener('click
 $('lvlBtn').addEventListener('click',()=>go('lvl'));
 function drawBoxes(){$('boxes').innerHTML=Object.entries(BOXES).map(([k,B])=>`<button data-b="${k}" class="${k===(S.box||'blue')?'on':''}">${boxSVG(k)}${B.n}<small>${short(B.cost)} с</small></button>`).join('')}
 $('boxes').addEventListener('click',e=>{const b=e.target.closest('[data-b]');if(!b||spinning)return;S.box=b.dataset.b;setMode('car');save()});
-function setMode(m){if(!['plate','name','sim','car'].includes(m))m='plate';
-  S.mode=m;for(const b of $('modes').children)b.classList.toggle('on',b.dataset.m===m);
+function setMode(m){if(!['plate','name','sim','car'].includes(m)||S.lvl<(MODE_LVL[m]||0))m='plate';
+  S.mode=m;drawModes();for(const b of $('modes').children)b.classList.toggle('on',b.dataset.m===m);
   $('boxes').hidden=m!=='car';if(m==='car')drawBoxes();
   drawButtons();const last=S.col.find(c=>c.id===S.last);if(last&&kindOf(last)===m&&(m!=='car'||last.b===S.box))showResult(last,false);else idle();
 }
-$('modes').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b||spinning)return;setMode(b.dataset.m);save()});
+$('modes').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b||spinning)return;const need=MODE_LVL[b.dataset.m]||0;if(S.lvl<need){toast((b.dataset.m==='car'?'Машины':'Именные номера')+' откроются на '+need+' уровне — '+fmt(lvNeed(need))+' на балансе');return}setMode(b.dataset.m);save()});
+function drawModes(){for(const b of $('modes').children){const need=MODE_LVL[b.dataset.m]||0;b.classList.toggle('locked',S.lvl<need);b.textContent=(S.lvl<need?'🔒 ':'')+{plate:'Номера',name:'Именные',sim:'Сим',car:'Машины'}[b.dataset.m]}}
 
 /* ===== аккаунты (Firebase) ===== */
 const NICK_RE=/^[A-Za-zА-Яа-яЁёӨөҮүҢң0-9_]{3,16}$/;
@@ -1146,7 +1157,7 @@ $('meBtn').addEventListener('click',()=>go('acc'));
 $('aCode').addEventListener('input',()=>{if(tab==='up')$('aGo').textContent=$('aCode').value.trim()?'Создать аккаунт с прогрессом':'Создать аккаунт'});
 
 /* автообновление: телефон держит старую страницу в кэше до 10 минут — проверяем версию на сервере */
-const VER='9';
+const VER='11';
 fetch(location.pathname+'?nocache='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(h=>{const m=h.match(/const VER='(\d+)'/);if(m&&m[1]!==VER&&!sessionStorage.getItem('upd'+m[1])){sessionStorage.setItem('upd'+m[1],1);flush().finally(()=>location.replace(location.pathname+'?v='+m[1]))}}).catch(()=>{});
 /* запуск */
 applyState(FRESH());
@@ -1160,7 +1171,7 @@ else{
     uid=u.uid;LK='kg_u_'+uid;$('sMsg').textContent='Загружаем ваш сейф…';$('splash').hidden=false;
     try{
       const d=await fb.db.collection('users').doc(uid).get();
-      if(d.exists){const st=unpackState(d.data().state)||FRESH();if(!st.nick)st.nick=d.data().nick||mailNick(u.email);applyState(st);dirty=true;flush()}
+      if(d.exists){const st=unpackState(d.data().state)||FRESH();if(!st.nick)st.nick=d.data().nick||mailNick(u.email);applyState(st);dirty=true;flush();setTimeout(()=>{checkLevel();drawBal();save()},800)}
       else{applyState(pendSt?rehydrate(pendSt):Object.assign(FRESH(),{nick:mailNick(u.email)}));dirty=true;await flush()}
       toast(pendSt?'Аккаунт создан. Добро пожаловать, '+S.nick+'!':'С возвращением, '+(S.nick||'игрок')+'!');
     }catch(x){
