@@ -430,7 +430,7 @@ const NAMED={SAYAN:2620000};
 const UNIQ={'00|000|OOO':[10000000,'Особый номер 00 KG 000 OOO — единственный в игре']};
 const evalPlate=p=>UNIQ[p.r+'|'+p.d+'|'+p.l]&&p.fmt==='new'?{price:UNIQ[p.r+'|'+p.d+'|'+p.l][0],f:['Особый номер','Единственный в игре'],off:0,note:UNIQ[p.r+'|'+p.d+'|'+p.l][1]}:p.fmt==='name'?valueName(p.r,p.l):p.fmt==='old'?valueOld(p.r,p.d,p.l):valueNew(p.r,p.d,p.l);
 /* чем дороже номер, тем реже выпадает (цены от этого не меняются) */
-const ALPHA=1.8,FLOOR=1500,LUCK_DIG=.1,LUCK_SAME=.015,LUCK_WORD=.05,LUCK_OLD=.08;
+const ALPHA=2.5,FLOOR=1500,LUCK_DIG=.1,LUCK_SAME=.015,LUCK_WORD=.05,LUCK_OLD=.08;
 const uid6=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 function makePlate(){let p,v;const old=Math.random()<OLD_CHANCE;for(let i=0;i<60;i++){p=rawPlate(old);v=evalPlate(p);if(v.price<=FLOOR||Math.random()<Math.pow(FLOOR/v.price,ALPHA))break}return Object.assign(p,v,{id:uid6(),t:Date.now(),tier:tierOf(v.price),c:''})}
 
@@ -1095,11 +1095,13 @@ function makeName(){const g=NGEN[+wpick(Object.fromEntries(NGEN.map((x,i)=>[i,x[
 
 /* гарантия: раз в 50–80 прокруток госномеров выпадает дорогой номер (от 30 000 сом) */
 const PITY_MIN=15000,PITY_MAX=40000,PITY_P=1/80,pityT=()=>0;
-function makePityPlate(){let p;for(let i=0;i<4000;i++){p=rawPlate(Math.random()<OLD_CHANCE);const v=evalPlate(p);if(v.price>=PITY_MIN&&v.price<=PITY_MAX){Object.assign(p,v);break}}
+function plateIn(lo,hi){let p;for(let i=0;i<6000;i++){p=rawPlate(Math.random()<OLD_CHANCE);const v=evalPlate(p);if(v.price>=lo&&v.price<=hi){Object.assign(p,v);break}}
   if(!p.price){p={fmt:'new',r:'01',d:'777',l:'KGZ'};Object.assign(p,evalPlate(p))}
-  return Object.assign(p,{id:uid6(),t:Date.now(),tier:tierOf(p.price),c:'',pity:1})}
-/* дорогой номер выпадает случайно, в среднем раз в 80 прокруток; счётчика нет */
-function makePlateP(){return Math.random()<PITY_P?makePityPlate():makePlate()}
+  return Object.assign(p,{id:uid6(),t:Date.now(),tier:tierOf(p.price),c:''})}
+const makePityPlate=()=>plateIn(PITY_MIN,PITY_MAX);
+/* шансы на плюс: каждая ~14-я прокрутка — номер 2 500–4 200, каждая ~75-я — 8 000–20 000, плюс редкие дорогие сами по себе */
+const WIN_P=[[1/75,8000,20000],[1/14,2500,4200]];
+function makePlateP(){let r=Math.random();for(const [q,lo,hi] of WIN_P){if(r<q)return plateIn(lo,hi);r-=q}return makePlate()}
 const isSim=p=>p.kind==='sim';
 const kindOf=p=>isCar(p)?'car':isSim(p)?'sim':p.fmt==='name'?'name':'plate';
 const evalAny=p=>isCar(p)?evalCar(p):isSim(p)?evalSim(p):evalPlate(p);
@@ -1406,7 +1408,7 @@ function rulesSheet(){
   <li>Старые номера (B 1234 AB): 4 одинаковые цифры — 300–600 тыс., 0001 — 200 тыс., 0002–0009 — 100 тыс., круглые — 60 тыс., пары — 20 тыс., обычный — 1 500–2 000. Одинаковые буквы ×2, буквы как серия ×3, серии BB, BM, BK, BC, BS +50 000.</li>
   <li>Сим-карты — по прайсам операторов и лотам аукциона О!.</li>
   <li>Чем дороже номер, тем реже он выпадает.</li>
-  <li>Время от времени — случайно, в среднем примерно раз в 80 прокруток — выпадает дорогой номер.</li></ul>
+  <li>Примерно каждая 7-я прокрутка госномера уходит в плюс: каждая ~14-я — номер 2 500–4 200, каждая ~75-я — 8 000–20 000, а самые дорогие номера выпадают редко сами по себе.</li></ul>
   <h4>Стоимость прокрутки</h4><ul><li>Госномер — ${fmt(COST)}, сим-карта — ${fmt(SIM_COST)}, именной номер — ${fmt(NAME_COST)}.</li>
   <li>Контейнеры: ${Object.values(BOXES).map(B=>B.n.toLowerCase()+' — '+fmt(B.cost)).join(', ')}.</li>
   <li>Госномера, сим-карты и машины: цена прокрутки чуть выше средней стоимости выпадающего, в плюс выводят редкие дорогие выпадения. Именной номер никогда не стоит дешевле прокрутки.</li></ul>
@@ -1602,7 +1604,7 @@ $('meBtn').addEventListener('click',()=>go('acc'));
 $('aCode').addEventListener('input',()=>{if(tab==='up')$('aGo').textContent=$('aCode').value.trim()?'Создать аккаунт с прогрессом':'Создать аккаунт'});
 
 /* автообновление: телефон держит старую страницу в кэше до 10 минут — проверяем версию на сервере */
-const VER='13';
+const VER='14';
 fetch(location.pathname+'?nocache='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(h=>{const m=h.match(/const VER='(\d+)'/);if(m&&m[1]!==VER&&!sessionStorage.getItem('upd'+m[1])){sessionStorage.setItem('upd'+m[1],1);flush().finally(()=>location.replace(location.pathname+'?v='+m[1]))}}).catch(()=>{});
 /* запуск */
 applyState(FRESH());
