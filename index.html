@@ -1032,7 +1032,7 @@ function boxSVG(b,open){const B=BOXES[b],rib=[...Array(14)].map((_,i)=>`<rect x=
 ${door(46,'dl')}${door(260,'dr')}<rect x="34" y="18" width="452" height="14" rx="4" fill="${B.d}"/><rect x="34" y="218" width="452" height="14" rx="4" fill="${B.d}"/>
 <text x="260" y="246" font-size="0">${B.n}</text></svg>`}
 /* ===== именные номера (01 KG ARTEM) ===== */
-const NAME_COST=100000,NAME_MIN=120000;
+const NAME_COST=100000,NAME_MIN=95000,NAME_PLUS=120000;
 /* надписи из 4–7 латинских букв; цена фиксированная, как у одинаковых номеров на торгах */
 const NW={};
 const nwAdd=(cat,price,list)=>list.split(' ').forEach(w=>NW[w]=[cat,price]);
@@ -1055,7 +1055,7 @@ const rnd=(a,n)=>Array.from({length:n},()=>pick(a)).join('');
 const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 /* цена именного номера считается по самой надписи: одна и та же надпись всегда стоит одинаково */
 function valueName(r,l){
-  const N=(price,what)=>(price=Math.max(NAME_MIN,price),{f:['Именной номер',what],off:0,price,note:price<=NAME_MIN?'Обычная надпись — '+short(NAME_MIN)+', дороже прокрутки':price<300000?'Красивая надпись':'Редкая надпись — большой плюс'});
+  const N=(price,what)=>(price=price<=NAME_COST?price:Math.max(NAME_PLUS,price),{f:['Именной номер',what],off:0,price,note:price<NAME_COST?'Случайная надпись — на 5 000 дешевле прокрутки':price===NAME_COST?'Слово или имя — в ноль':price<300000?'Красивая надпись — в плюс':'Редкая надпись — большой плюс'});
   if(NAMED[l])return {f:['Именной номер','Единственный в игре'],off:0,note:'Именной номер — выдан лично, в прокрутке не выпадает',price:NAMED[l]};
   const n=l.length;let m;
   if(/^(.)\1*$/.test(l)){const d=/\d/.test(l[0]);
@@ -1071,8 +1071,8 @@ function valueName(r,l){
   if(n>=4&&l===[...l].reverse().join(''))return N(150000,'Зеркальная надпись');
   if(m=/^([A-Z]{3,6}?)(\d{1,3})$/.exec(l)){const w=NW[m[1]];if(w)return N(Math.max(100000,w[1]),NCAT[w[0]]+' + цифры')}
   for(let k=n-1;k>=Math.max(2,n-2);k--){const w=NW[l.slice(0,k)]||NW[l.slice(n-k)];if(w&&w[0]>=1)return N(Math.max(100000,Math.round(w[1]*.8/1000)*1000),NCAT[w[0]]+' + буквы')}
-  return N(100000,/^\d+$/.test(l)?'Цифры':'Надпись')}
-const tierName=p=>p>=700000?4:p>=300000?3:p>=200000?2:p>NAME_MIN?1:0;
+  return N(/^\d+$/.test(l)?NAME_COST:95000,/^\d+$/.test(l)?'Цифры':'Случайная надпись')}
+const tierName=p=>p>=700000?4:p>=300000?3:p>=150000?2:p>=NAME_PLUS?1:0;
 const NREG=['01','01','01','01','08','08','02','09','04','06','03','05','07'];
 const W=c=>Object.keys(NW).filter(k=>NW[k][0]===c);
 /* что может выпасть и как часто (вес) */
@@ -1215,7 +1215,7 @@ function idle(){
   const m=S.mode,B=BOXES[S.box||'blue'];
   $('big').innerHTML=m==='car'?boxSVG(S.box||'blue'):itemHTML(m==='sim'?{kind:'sim',op:'b',pre:'0777',s:'777777',cat:4}:m==='name'?{fmt:'name',r:'01',l:'ARTEM'}:{fmt:'new',r:'01',d:'919',l:'RRR'});
   $('res').innerHTML=`<div class="hint">${m==='car'?`${B.n} контейнер: машины от ${short(Math.min(...Object.keys(B.pool).map(k=>carPrice(k,CARS[k][2]))))} до ${short(Math.max(...Object.keys(B.pool).map(k=>carPrice(k,CARS[k][3]))))} сом. Чаще выпадают машины около цены контейнера, редко — намного дороже.`
-    :m==='name'?'Любая надпись от 1 до 7 знаков: буквы, цифры, слова, имена, GKNB, M6M6, KG01, BBB, A777. Любой именной номер стоит от 120 000 — в минус не уйти. Красивые — 150–450 тыс., одна цифра, 7 одинаковых и легендарные — до 1 000 000.'
+    :m==='name'?'Любая надпись от 1 до 7 знаков: буквы, цифры, слова, имена, GKNB, M6M6, KG01, BBB, A777. Случайная надпись — 95 000 (−5 000), слово или имя — 100 000 (в ноль), красивые — от 120 000 до 1 000 000. Красивые — 150–450 тыс., одна цифра, 7 одинаковых и легендарные — до 1 000 000.'
     :`Крутите и собирайте ${m==='sim'?'красивые номера телефонов':'госномера'}. Цена — по прайсу nomer.srs.kg и реальным продажам, подробнее в «Аккаунт» → «Как считается цена».`}</div>`;
   $('sellLast').disabled=true;$('sellLast').textContent='Продать';
 }
@@ -1425,7 +1425,7 @@ function rulesSheet(){
   <h4>Стоимость прокрутки</h4><ul><li>Госномер — ${fmt(COST)}, сим-карта — ${fmt(SIM_COST)}, именной номер — ${fmt(NAME_COST)}.</li>
   <li>Контейнеры: ${Object.values(BOXES).map(B=>B.n.toLowerCase()+' — '+fmt(B.cost)).join(', ')}.</li>
   <li>Госномера, сим-карты и машины: цена прокрутки чуть выше средней стоимости выпадающего, в плюс выводят редкие дорогие выпадения. Именной номер никогда не стоит дешевле прокрутки.</li></ul>
-  <h4>Именные номера</h4><ul><li>Открываются с 20 уровня, машины — с 40 уровня.</li><li>Любая надпись до 7 знаков из латинских букв и цифр, больше 600 слов и имён. Любой именной номер стоит от 120 000. ARTEM, OLESIA — 150 000; GKNB, FSB, BOSS, KING, DRAGON… — 200 000; SULTAN, LEGENDA, PREZIDN — 350 000.</li>
+  <h4>Именные номера</h4><ul><li>Открываются с 20 уровня, машины — с 40 уровня.</li><li>Любая надпись до 7 знаков из латинских букв и цифр, больше 600 слов и имён. Случайная надпись — 95 000, слово или имя — 100 000, всё красивое — от 120 000. ARTEM, OLESIA — 150 000; GKNB, FSB, BOSS, KING, DRAGON… — 200 000; SULTAN, LEGENDA, PREZIDN — 350 000.</li>
   <li>Одинаковые буквы: BB — 150 000, BBB — 200 000, BBBB — 250 000 … BBBBBB — 400 000 (A на 25 % дороже). Одна буква — 400 000, A — 600 000.</li>
   <li>KG + цифры (KG12) — 150 000, красивые (KG01, KG777, KG1) — 300 000. Одинаковые цифры: 77 — 300 000 и дороже. Одна цифра — 500 000, 7 — 800 000, 1 — 1 000 000.</li>
   <li>Крутые надписи (BOSS, KING, KHAN, BISHKEK…) — 200 000, SULTAN, LEGENDA — 350 000.</li><li>TENGRI — 600 000, MANAS — 800 000, KYRGYZ — 900 000, семь одинаковых букв — 500 000, AAAAAAA — 1 000 000.</li></ul>
@@ -1617,7 +1617,7 @@ $('meBtn').addEventListener('click',()=>go('acc'));
 $('aCode').addEventListener('input',()=>{if(tab==='up')$('aGo').textContent=$('aCode').value.trim()?'Создать аккаунт с прогрессом':'Создать аккаунт'});
 
 /* автообновление: телефон держит старую страницу в кэше до 10 минут — проверяем версию на сервере */
-const VER='19';
+const VER='20';
 fetch(location.pathname+'?nocache='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(h=>{const m=h.match(/const VER='(\d+)'/);if(m&&m[1]!==VER&&!sessionStorage.getItem('upd'+m[1])){sessionStorage.setItem('upd'+m[1],1);flush().finally(()=>location.replace(location.pathname+'?v='+m[1]))}}).catch(()=>{});
 /* запуск */
 applyState(FRESH());
