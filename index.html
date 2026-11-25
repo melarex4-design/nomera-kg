@@ -251,7 +251,7 @@ nav button.on{color:var(--ink)}
 </section>
 
 <section class="view" id="v-safe">
-  <div class="seg" id="tabs" style="margin-top:14px"><button data-c="safe" class="on">Сейф</button><button data-c="col">Коллекция</button></div>
+  <div class="seg" id="tabs" style="margin-top:14px"><button data-c="safe" class="on">Сейф</button><button data-c="gar">Гараж</button><button data-c="col">Коллекция</button></div>
   <div class="sum"><div class="t"><b id="sval">0 сом</b><span id="scnt">0 шт</span></div>
     <div class="s"><span>Итог игры <em id="sPL">0</em></span><span>Прокруток <em id="sN">0</em></span><span>Лучший <em id="sBest">—</em></span></div>
     <div class="r2" id="sumBtns"><button class="sellall" id="quick">Продать всё</button><button class="selbtn" id="selMode">Выбрать</button></div>
@@ -321,7 +321,7 @@ const RW={'01':26,'02':10,'03':6,'04':12,'05':4,'06':12,'07':4,'08':16,'09':10};
 /* какая доля рыночной надбавки достаётся региону: в Бишкеке торги самые дорогие */
 const RF={'00':1,'01':1,'08':.85,'02':.75,'09':.7,'04':.6,'06':.6,'03':.45,'05':.45,'07':.45};
 const OLD={B:['01',18,1],E:['01',5,1],F:['01',3,1],Z:['02',8,.75],A:['03',5,.45],D:['04',10,.6],N:['05',3,.45],H:['05',2,.45],O:['06',10,.6],T:['07',4,.45],C:['08',10,.85],S:['08',5,.85],I:['09',9,.7]};
-const START=50000,COST=2600,USD=87.45,NEW_CAP=2620000,OLD_CAP=8740000,OLD_CHANCE=.3,ALLIN_MAX=500;
+const START=50000,COST=1500,USD=87.45,NEW_CAP=2620000,OLD_CAP=8740000,OLD_CHANCE=.1,ALLIN_MAX=500;
 const LET='ABCDEFGHIJKLMNOPRSTUVWXYZ',P_A=.6,LET_NA=LET.slice(1);
 const OLD_SER=['BB','BM','BK','BC','BS'];
 const WORDS=['AMG','BMW','VIP','ATA','NEO','MMA','KGZ','BOS','TOP','CEO','ACE','PRO','JET','LEX','SUN','BAR','DOC','CAR','GOV','GMC','SPR','CRV','DOS','SOS','MER','BOSS','RAV','KIA','AUD','TOY','LUX','MAN','GTR','RS6','ZIL','UAZ','VAZ','EGO','WIN','BIG','BOY','ART','ONE'];
@@ -430,7 +430,7 @@ const NAMED={SAYAN:2620000};
 const UNIQ={'00|000|OOO':[10000000,'Особый номер 00 KG 000 OOO — единственный в игре']};
 const evalPlate=p=>UNIQ[p.r+'|'+p.d+'|'+p.l]&&p.fmt==='new'?{price:UNIQ[p.r+'|'+p.d+'|'+p.l][0],f:['Особый номер','Единственный в игре'],off:0,note:UNIQ[p.r+'|'+p.d+'|'+p.l][1]}:p.fmt==='name'?valueName(p.r,p.l):p.fmt==='old'?valueOld(p.r,p.d,p.l):valueNew(p.r,p.d,p.l);
 /* чем дороже номер, тем реже выпадает (цены от этого не меняются) */
-const ALPHA=.7,FLOOR=1500,LUCK_DIG=.1,LUCK_SAME=.015,LUCK_WORD=.05,LUCK_OLD=.08;
+const ALPHA=1.8,FLOOR=1500,LUCK_DIG=.1,LUCK_SAME=.015,LUCK_WORD=.05,LUCK_OLD=.08;
 const uid6=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 function makePlate(){let p,v;const old=Math.random()<OLD_CHANCE;for(let i=0;i<60;i++){p=rawPlate(old);v=evalPlate(p);if(v.price<=FLOOR||Math.random()<Math.pow(FLOOR/v.price,ALPHA))break}return Object.assign(p,v,{id:uid6(),t:Date.now(),tier:tierOf(v.price),c:''})}
 
@@ -518,19 +518,31 @@ const CARS={
  cayenne:['Porsche Cayenne','suv',2018,2024,50000,100000],lc300:['Toyota Land Cruiser 300','box',2021,2025,75000,100000],gx550:['Lexus GX 550','box',2024,2026,90000,100000],
  rr:['Range Rover','box',2018,2024,70000,160000],s223:['Mercedes S-Class','sedan',2021,2025,90000,150000],lx600:['Lexus LX 600','box',2022,2026,135000,180000],
  m5g90:['BMW M5 G90','sport',2025,2026,150000,187000],g63:['Mercedes G 63 AMG','gwag',2019,2025,140000,220000],urus:['Lamborghini Urus','suv',2019,2025,220000,320000],
- cullinan:['Rolls-Royce Cullinan','box',2019,2025,300000,450000]};
+ cullinan:['Rolls-Royce Cullinan','box',2019,2025,300000,450000],
+ priora:['Lada Priora','sedan',2008,2015,3000,4500],nexia:['Daewoo Nexia','sedan',2008,2016,3000,5000],odyssey:['Honda Odyssey','van',1998,2003,3500,5500],
+ m190:['Mercedes 190','classic',1985,1993,2000,3500],audi100:['Audi 100','classic',1988,1994,2500,4000],passat:['VW Passat B3','classic',1989,1993,2200,3500],ipsum:['Toyota Ipsum','van',2001,2006,5000,7500],
+ rav4:['Toyota RAV4','suv',2016,2021,17000,26000],tucson:['Hyundai Tucson','suv',2016,2021,14000,21000],sportage:['Kia Sportage','suv',2017,2022,15000,22000],
+ c205:['Mercedes C-Class','sedan',2015,2020,17000,26000],a6:['Audi A6','sedan',2015,2019,17000,25000],tiguan:['VW Tiguan','suv',2017,2021,17000,24000],highl:['Toyota Highlander','suv',2015,2019,22000,30000],
+ gle:['Mercedes GLE','suv',2019,2024,55000,90000],w214:['Mercedes E-Class W214','sedan',2024,2026,60000,80000],x6:['BMW X6','suv',2020,2024,60000,95000],q8:['Audi Q8','suv',2019,2024,55000,85000],
+ ls:['Lexus LS 500','sedan',2018,2023,45000,70000],modelx:['Tesla Model X','suv',2021,2024,60000,85000],zeekr:['Zeekr 001','sport',2023,2025,35000,45000],l9:['Li Auto L9','suv',2023,2025,45000,55000],
+ bentayga:['Bentley Bentayga','suv',2020,2025,150000,250000],contgt:['Bentley Continental GT','gt',2019,2025,170000,300000],maybach:['Mercedes-Maybach S 680','limo',2021,2025,200000,260000],
+ gls600:['Mercedes-Maybach GLS 600','box',2021,2025,160000,220000],ghost:['Rolls-Royce Ghost','limo',2021,2025,280000,400000],phantom:['Rolls-Royce Phantom','limo',2018,2025,350000,550000],
+ puro:['Ferrari Purosangue','suv',2023,2025,550000,700000],sf90:['Ferrari SF90 Stradale','super',2020,2025,450000,600000],f296:['Ferrari 296 GTB','super',2022,2025,300000,380000],
+ huracan:['Lamborghini Huracán','super',2018,2024,220000,330000],revuelto:['Lamborghini Revuelto','super',2024,2026,600000,800000],mcl750:['McLaren 750S','super',2024,2025,320000,380000],
+ p911:['Porsche 911 Turbo S','gt',2021,2025,220000,300000],dbx:['Aston Martin DBX 707','suv',2022,2025,200000,260000],chiron:['Bugatti Chiron','super',2017,2023,2800000,3600000]};
 /* контейнеры: модель и её частота */
 const BOXES={
- blue:{n:'Синий',c:'#2d63b8',d:'#1f4a8c',cost:0,pool:{vaz:30,matiz:26,fit:20,vectra:20,e39:12,w210:12,camry20:10,camry40:3,lx470:.5}},
- red:{n:'Красный',c:'#b8373f',d:'#8e252c',cost:0,pool:{accord:20,elantra:20,camry55:18,e212:14,f10:14,sonata:14,camry70:14,k5:12,es:10,rx:8,x5:5,prado:5,m5f90:.7,lx570:.45}},
- gold:{n:'Жёлтый',c:'#d9a521',d:'#a87c12',cost:0,pool:{palisade:20,rx350:18,x7:14,cayenne:14,lc300:12,gx550:8,rr:8,s223:7,lx600:5,m5g90:4,g63:4,urus:1,cullinan:.5}}};
+ blue:{n:'Синий',c:'#2d63b8',d:'#1f4a8c',cost:0,pool:{vaz:30,matiz:26,fit:20,vectra:20,priora:18,nexia:20,m190:14,audi100:14,passat:14,odyssey:12,e39:12,w210:12,camry20:10,ipsum:6,camry40:3,lx470:.5}},
+ red:{n:'Красный',c:'#b8373f',d:'#8e252c',cost:0,pool:{accord:20,elantra:20,camry55:18,e212:14,f10:14,sonata:14,camry70:14,k5:12,tucson:12,sportage:12,rav4:10,c205:10,a6:9,tiguan:9,highl:6,es:10,rx:8,x5:5,prado:5,m5f90:.7,lx570:.45}},
+ gold:{n:'Жёлтый',c:'#d9a521',d:'#a87c12',cost:0,pool:{zeekr:16,palisade:20,l9:14,rx350:18,ls:10,gle:12,modelx:8,q8:10,x6:10,w214:8,x7:14,cayenne:14,lc300:12,gx550:8,rr:8,s223:7,lx600:5,m5g90:4,g63:4,urus:1,cullinan:.5}},
+ black:{n:'Чёрный',c:'#2a2a2e',d:'#111113',cost:0,fix:50000000,pool:{gls600:3,bentayga:3,maybach:3,dbx:3,p911:4,contgt:4,huracan:6,urus:6,ghost:7,f296:7,mcl750:7,cullinan:8,phantom:9,sf90:9,puro:9,revuelto:9,chiron:5.5}}};
 const CLR=[['Белый','#ececef'],['Чёрный','#1c1d22'],['Серебристый','#a9afb7'],['Серый','#5d636c'],['Синий','#2554a6'],['Красный','#b3202a'],['Зелёный','#2a6a4a'],['Бежевый','#c9b48a'],['Жёлтый','#e0b020'],['Оранжевый','#d8651f']];
 const CLR_W=[22,24,16,14,8,6,3,4,1.5,1.5];
 const isCar=p=>p.kind==='car';
 const carPrice=(m,y)=>{const c=CARS[m];if(!c)return 0;const k=c[3]>c[2]?(y-c[2])/(c[3]-c[2]):1;return Math.round((c[4]+(c[5]-c[4])*Math.max(0,Math.min(1,k)))*USD/1000)*1000};
 /* редкость машины считается относительно цены контейнера, из которого она выпала */
 const tierCar=p=>{const C=(BOXES[p.b]||BOXES.blue).cost,r=p.price/C;return r>=4?4:r>=2?3:r>=1.3?2:r>=.9?1:0};
-const BODY_N={classic:'Седан',hatch:'Хэтчбек',sedan:'Седан',suv:'Кроссовер',box:'Внедорожник',gwag:'Внедорожник',sport:'Спорт'};
+const BODY_N={super:'Суперкар',gt:'Купе',limo:'Лимузин-седан',van:'Минивэн',classic:'Седан',hatch:'Хэтчбек',sedan:'Седан',suv:'Кроссовер',box:'Внедорожник',gwag:'Внедорожник',sport:'Спорт'};
 function evalCar(p){const c=CARS[p.m]||CARS.vaz,price=carPrice(p.m,p.y);
   return {price,f:[BODY_N[c[1]],p.y+' г.',(CLR[p.k]||CLR[0])[0]],note:`${c[0]} ${p.y} г. — средняя цена по объявлениям lalafo.kg и mashina.kg: ≈ $${num(price/USD)}`,off:0}}
 const wpick=o=>{const e=Object.entries(o),t=e.reduce((s,x)=>s+x[1],0);let r=Math.random()*t;for(const [k,w] of e){r-=w;if(r<0)return k}return e[0][0]};
@@ -540,7 +552,7 @@ function makeCar(b){const m=wpick(BOXES[b].pool),c=CARS[m],y=c[2]+Math.floor(Mat
 /* цена контейнера = средняя стоимость машины / 0,95 (в среднем чуть в минус, выигрыш — на редкой машине) */
 for(const b in BOXES){const pl=BOXES[b].pool,t=Object.values(pl).reduce((s,w)=>s+w,0);let ev=0;
   for(const [m,w] of Object.entries(pl)){const c=CARS[m];let a=0;for(let y=c[2];y<=c[3];y++)a+=carPrice(m,y);ev+=w/t*a/(c[3]-c[2]+1)}
-  BOXES[b].ev=ev;BOXES[b].cost=Math.round(ev/.95/10000)*10000}
+  BOXES[b].ev=ev;BOXES[b].cost=BOXES[b].fix||Math.round(ev/.95/10000)*10000}
 /* рисунок: силуэт по типу кузова, без логотипов */
 const BODY={
  sedan:{w:[131,391],r:31,a:41,g:172,p:'M32 168L30 140Q32 124 60 120L150 112Q190 76 230 70L320 68Q350 70 380 102L470 110Q490 114 492 130L494 160Q494 172 484 172L432 172A41 41 0 0 0 350 172L172 172A41 41 0 0 0 90 172L44 172Q32 172 32 168Z',win:'M160 113Q194 82 232 77L318 75Q342 77 368 104Z',pil:[[262,76,262,108]]},
@@ -549,6 +561,10 @@ const BODY={
  suv:{w:[130,394],r:35,a:45,g:176,p:'M28 170L28 120Q30 104 52 100L96 96L130 52Q136 46 150 46L350 46Q362 46 372 56L410 94L468 100Q492 104 492 124L494 162Q494 176 482 176L439 176A45 45 0 0 0 349 176L175 176A45 45 0 0 0 85 176L40 176Q28 176 28 170Z',win:'M104 96L136 56L344 56Q354 56 362 64L396 96Z',pil:[[250,56,250,96],[160,56,152,96]]},
  box:{w:[132,392],r:36,a:46,g:176,p:'M28 170L28 64Q28 50 42 50L338 48Q350 48 356 58L382 98L470 104Q490 106 492 122L494 162Q494 176 482 176L438 176A46 46 0 0 0 346 176L178 176A46 46 0 0 0 86 176L40 176Q28 176 28 170Z',win:'M46 60L336 58L366 98L46 98Z',pil:[[150,58,150,98],[256,58,256,98]]},
  gwag:{w:[132,392],r:36,a:46,g:176,p:'M30 170L30 52Q30 44 38 44L346 44Q354 44 356 52L362 98L470 102Q490 104 490 120L492 164Q492 176 480 176L438 176A46 46 0 0 0 346 176L178 176A46 46 0 0 0 86 176L42 176Q30 176 30 170ZM14 70h16v70h-16z',win:'M44 54L344 54L348 96L44 96Z',pil:[[146,54,146,96],[250,54,250,96]]},
+ super:{w:[134,398],r:31,a:40,g:162,p:'M24 150L26 130Q30 118 50 114L118 104Q186 72 246 68L292 70Q332 78 384 106L484 122Q500 126 500 140L500 152Q500 162 488 162L438 162A40 40 0 0 0 358 162L174 162A40 40 0 0 0 94 162L38 162Q24 162 24 150ZM200 124L262 122L250 140L206 140Z',win:'M150 104Q202 77 248 74L290 75Q320 82 360 106Z',pil:[]},
+ gt:{w:[133,393],r:32,a:41,g:170,p:'M30 160L32 134Q36 122 64 118L176 106Q222 72 262 70L300 71Q336 76 388 104L478 114Q496 118 496 134L496 158Q496 170 484 170L434 170A41 41 0 0 0 352 170L174 170A41 41 0 0 0 92 170L42 170Q30 170 30 160Z',win:'M190 107Q228 79 262 77L298 78Q326 82 366 104Z',pil:[]},
+ limo:{w:[124,402],r:33,a:43,g:174,p:'M22 170L22 132Q24 118 50 116L170 110Q200 72 236 66L340 64Q368 66 392 98L478 106Q498 110 498 128L498 162Q498 174 486 174L445 174A43 43 0 0 0 359 174L167 174A43 43 0 0 0 81 174L34 174Q22 174 22 170Z',win:'M180 110Q206 78 238 73L338 71Q360 73 380 100Z',pil:[[262,72,262,106],[316,71,316,104]]},
+ van:{w:[132,392],r:34,a:44,g:174,p:'M30 168L30 70Q32 54 50 52L330 50Q350 52 362 62L420 104L470 108Q490 110 492 128L494 162Q494 174 482 174L436 174A44 44 0 0 0 348 174L176 174A44 44 0 0 0 88 174L42 174Q30 174 30 168Z',win:'M48 62L328 60Q344 62 352 70L392 104L48 104Z',pil:[[150,60,150,104],[250,60,250,104]]},
  sport:{w:[133,393],r:32,a:41,g:170,p:'M30 160L32 136Q36 124 64 120L150 108Q210 70 252 68L298 68Q338 72 392 104L478 114Q496 118 496 134L496 158Q496 170 484 170L434 170A41 41 0 0 0 352 170L174 170A41 41 0 0 0 92 170L42 170Q30 170 30 160Z',win:'M166 108Q214 78 252 75L296 75Q330 79 372 104Z',pil:[[262,75,262,105]]}};
 const shade=(h,k)=>{const n=parseInt(h.slice(1),16),f=x=>Math.max(0,Math.min(255,Math.round(x*k)));return '#'+[n>>16,n>>8&255,n&255].map(f).map(x=>x.toString(16).padStart(2,'0')).join('')};
 function carSVG(p){
@@ -584,44 +600,49 @@ const rnd=(a,n)=>Array.from({length:n},()=>pick(a)).join('');
 const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 /* цена именного номера считается по самой надписи: одна и та же надпись всегда стоит одинаково */
 function valueName(r,l){
-  const N=(price,cat,what)=>({f:['Именной номер',what],off:0,price,note:cat===0?'Обычная надпись — дешевле прокрутки':cat===1?'Около цены прокрутки':cat===2?'Крутая надпись — в плюс':'Легендарная надпись — большой плюс'});
+  const N=(price,what)=>({f:['Именной номер',what],off:0,price,note:price<=100000?'Обычная надпись — стоит как прокрутка':price<300000?'Красивая надпись — в плюс':'Редкая надпись — большой плюс'});
   if(NAMED[l])return {f:['Именной номер','Единственный в игре'],off:0,note:'Именной номер — выдан лично, в прокрутке не выпадает',price:NAMED[l]};
-  const n=l.length;
+  const n=l.length;let m;
   if(/^(.)\1*$/.test(l)){const d=/\d/.test(l[0]);
-    if(n===1){const p=d?(l==='1'?1000000:l==='7'?800000:500000):(l==='A'?600000:400000);return N(p,3,d?'Одна цифра':'Одна буква')}
-    if(n===7){const p=l==='AAAAAAA'||l==='7777777'||l==='1111111'?1000000:500000;return N(p,3,'Семь одинаковых')}
+    if(n===1)return N(d?(l==='1'?1000000:l==='7'?800000:500000):(l==='A'?600000:400000),d?'Одна цифра':'Одна буква');
+    if(n===7)return N(l==='AAAAAAA'||l==='7777777'||l==='1111111'?1000000:500000,'Семь одинаковых');
     let p=[0,0,150000,200000,250000,300000,400000][n];if(d&&'17'.includes(l[0]))p*=1.5;else if(l[0]==='A')p*=1.25;
-    return N(Math.round(p/1000)*1000,p>=500000?3:2,n+' одинаковых '+(d?'цифр':'буквы'))}
-  if(NW[l]){const w=NW[l];return N(w[1],w[0],NCAT[w[0]])}
-  let m;
-  if(m=/^KG(\d{1,4})$/.exec(l)){const s=m[1],cool=/^(\d)\1*$/.test(s)||/^0*1$/.test(s)||/^0*7$/.test(s);return N(cool?300000:150000,2,'KG + цифры')}
-  if(m=/^([A-Z]{3,7}?)(\d{1,3})$/.exec(l)){const w=NW[m[1]];if(w)return N(Math.max(70000,Math.round(w[1]*.8/1000)*1000),w[0]>=2?2:w[1]*.8>=100000?1:0,NCAT[w[0]]+' + цифры')}
-  if(/^\d+$/.test(l))return N(n<=3?100000:70000,n<=3?1:0,'Только цифры');
-  return N(70000,0,'Случайная надпись')}
-const tierName=p=>p>=700000?4:p>=300000?3:p>=150000?2:p>=100000?1:0;
+    return N(Math.round(p/1000)*1000,n+' одинаковых '+(d?'цифр':'букв'))}
+  if(NW[l])return N(Math.max(100000,NW[l][1]),NCAT[NW[l][0]]);
+  if(m=/^KG(\d{1,5})$/.exec(l))return N(/^(\d)\1*$/.test(m[1])||/^0*[17]$/.test(m[1])?300000:150000,'KG + цифры');
+  if(/^([A-Z])\1+(\d)\2+$/.test(l)||/^(\d)\1+([A-Z])\2+$/.test(l))return N(300000,'Одинаковые буквы и цифры');
+  if(m=/^(.{2,3})\1+$/.exec(l))return N(l.length/m[1].length>=3?250000:200000,'Повтор '+m[1]);
+  if(/^[A-Z](\d)\1{2,5}$/.test(l)||/^(\d)\1{2,5}[A-Z]$/.test(l))return N(200000,'Буква и одинаковые цифры');
+  if(n>=4&&l===[...l].reverse().join(''))return N(150000,'Зеркальная надпись');
+  if(m=/^([A-Z]{3,6}?)(\d{1,3})$/.exec(l)){const w=NW[m[1]];if(w)return N(Math.max(100000,w[1]),NCAT[w[0]]+' + цифры')}
+  return N(100000,/^\d+$/.test(l)?'Цифры':'Надпись')}
+const tierName=p=>p>=700000?4:p>=300000?3:p>=150000?2:p>100000?1:0;
 const NREG=['01','01','01','01','08','08','02','09','04','06','03','05','07'];
-/* что может выпасть и как часто, % */
+const W=c=>Object.keys(NW).filter(k=>NW[k][0]===c);
+/* что может выпасть и как часто (вес) */
 const NGEN=[
- [40.5,()=>rnd(LET,ri(4,7))],
- [12,()=>{let s;do{s=rnd(ALNUM,ri(3,6))}while(!/\d/.test(s)||!/[A-Z]/.test(s));return s}],
- [9,()=>pick(Object.keys(NW).filter(k=>NW[k][0]===0))],
- [22,()=>pick(Object.keys(NW).filter(k=>NW[k][0]===1))],
- [6,()=>{const w=pick(Object.keys(NW).filter(k=>NW[k][0]<=1&&k.length<=6));return w+rnd(DIGS,ri(1,7-w.length>2?2:1))}],
- [4,()=>pick(Object.keys(NW).filter(k=>NW[k][0]===2))],
+ [30,()=>rnd(LET,ri(4,7))],
+ [14,()=>{let s;do{s=rnd(ALNUM,ri(2,7))}while(!/\d/.test(s)||!/[A-Z]/.test(s));return s}],
+ [8,()=>pick(W(0))],[18,()=>pick(W(1))],
+ [6,()=>{const w=pick(Object.keys(NW).filter(k=>NW[k][0]<=1&&k.length<=6));return w+rnd(DIGS,ri(1,Math.min(3,7-w.length)))}],
+ [4,()=>pick(W(2))],
+ [3,()=>{const k=ri(2,3),u=k===2?pick(LET)+pick(DIGS):rnd(ALNUM,3);return u.repeat(k===2?ri(2,3):2)}],
+ [3,()=>{const a=pick(LET),d=pick(DIGS).repeat(ri(3,6));return Math.random()<.7?a+d:d+a}],
+ [1,()=>{const a=ri(2,4);return pick(LET).repeat(a)+pick(DIGS).repeat(ri(2,7-a))}],
+ [2,()=>{const h=rnd(ALNUM,ri(2,3));return h+(Math.random()<.5?pick(ALNUM):'')+[...h].reverse().join('')}],
  [2.5,()=>pick(LET).repeat(ri(2,6))],
- [1.6,()=>'KG'+(Math.random()<.4?pick(['1','01','001','7','07','777','77','1111','0001']):rnd(DIGS,ri(1,4)))],
- [1.2,()=>Math.random()<.5?pick(DIGS.slice(1)).repeat(ri(2,6)):rnd(DIGS,ri(2,3))],
- [.6,()=>{const q=Math.random();return q<.3?pick(LET):q<.45?pick(DIGS.slice(1)):q<.75?pick(ALNUM).repeat(7):pick(Object.keys(NW).filter(k=>NW[k][0]===3))}]];
+ [1.6,()=>'KG'+(Math.random()<.4?pick(['1','01','001','7','07','777','77','1111','0001']):rnd(DIGS,ri(1,5)))],
+ [1.2,()=>Math.random()<.5?pick(DIGS.slice(1)).repeat(ri(2,6)):rnd(DIGS,ri(2,4))],
+ [.6,()=>{const q=Math.random();return q<.3?pick(LET):q<.45?pick(DIGS.slice(1)):q<.75?pick(ALNUM).repeat(7):pick(W(3))}]];
 function makeName(){const g=NGEN[+wpick(Object.fromEntries(NGEN.map((x,i)=>[i,x[0]])))][1];const p={fmt:'name',r:pick(NREG),l:g()};const v=valueName(p.r,p.l);return Object.assign(p,v,{id:uid6(),t:Date.now(),tier:tierName(v.price),c:''})}
 
 /* гарантия: раз в 50–80 прокруток госномеров выпадает дорогой номер (от 30 000 сом) */
-const PITY_MIN=30000,PITY_MAX=150000,pityT=()=>50+Math.floor(Math.random()*31);
+const PITY_MIN=15000,PITY_MAX=40000,PITY_P=1/80,pityT=()=>0;
 function makePityPlate(){let p;for(let i=0;i<4000;i++){p=rawPlate(Math.random()<OLD_CHANCE);const v=evalPlate(p);if(v.price>=PITY_MIN&&v.price<=PITY_MAX){Object.assign(p,v);break}}
   if(!p.price){p={fmt:'new',r:'01',d:'777',l:'KGZ'};Object.assign(p,evalPlate(p))}
   return Object.assign(p,{id:uid6(),t:Date.now(),tier:tierOf(p.price),c:'',pity:1})}
-function makePlateP(){if(!S.pt)S.pt=pityT();S.pity=(S.pity||0)+1;
-  if(S.pity>=S.pt){S.pity=0;S.pt=pityT();return makePityPlate()}
-  const p=makePlate();if(p.price>=PITY_MIN){S.pity=0;S.pt=pityT()}return p}
+/* дорогой номер выпадает случайно, в среднем раз в 80 прокруток; счётчика нет */
+function makePlateP(){return Math.random()<PITY_P?makePityPlate():makePlate()}
 const isSim=p=>p.kind==='sim';
 const kindOf=p=>isCar(p)?'car':isSim(p)?'sim':p.fmt==='name'?'name':'plate';
 const evalAny=p=>isCar(p)?evalCar(p):isSim(p)?evalSim(p):evalPlate(p);
@@ -702,7 +723,7 @@ function drawButtons(){
   const l25=S.lvl<5,b25=$('spin25');b25.classList.toggle('locked',l25);b25.disabled=!l25&&(S.bal<C*25||spinning);$('spin25V').textContent=l25?'🔒 с 5 уровня':short(C*25)+' с';
   const n=Math.floor(S.bal/C),lA=S.lvl<10,ba=$('allin');ba.classList.toggle('locked',lA);ba.disabled=!lA&&(n<1||spinning);$('allinV').textContent=lA?'🔒 с 10 уровня':n>0?n+' шт':'—';
   $('broke').hidden=!poor||spinning;
-  const pv=S.mode==='plate';$('pity').hidden=!pv;
+  const pv=false;$('pity').hidden=true;
   if(pv){const t=S.pt||65,left=Math.max(1,t-(S.pity||0));$('pity').innerHTML=`<span>Дорогой номер (от ${short(PITY_MIN)}) гарантирован через <b>${left}</b> ${left%10===1&&left%100!==11?'прокрутку':left%10>=2&&left%10<=4&&(left%100<10||left%100>=20)?'прокрутки':'прокруток'}</span><span class="bar"><i style="width:${Math.min(100,(S.pity||0)/t*100).toFixed(1)}%"></i></span>`}
 }
 function drawLvl(){
@@ -726,7 +747,7 @@ function idle(){
   const m=S.mode,B=BOXES[S.box||'blue'];
   $('big').innerHTML=m==='car'?boxSVG(S.box||'blue'):itemHTML(m==='sim'?{kind:'sim',op:'b',pre:'0777',s:'777777',cat:4}:m==='name'?{fmt:'name',r:'01',l:'ARTEM'}:{fmt:'new',r:'01',d:'919',l:'RRR'});
   $('res').innerHTML=`<div class="hint">${m==='car'?`${B.n} контейнер: машины от ${short(Math.min(...Object.keys(B.pool).map(k=>carPrice(k,CARS[k][2]))))} до ${short(Math.max(...Object.keys(B.pool).map(k=>carPrice(k,CARS[k][3]))))} сом. Чаще выпадают машины около цены контейнера, редко — намного дороже.`
-    :m==='name'?'Любая надпись до 7 знаков: буквы, цифры, KG01, BBB, 777, имена. Случайная надпись — 70 000, имя — 100–150 тыс., одинаковые буквы, KG + цифры и крутые слова — 150–450 тыс., одна цифра, 7 одинаковых и легендарные слова — до 1 000 000.'
+    :m==='name'?'Любая надпись от 1 до 7 знаков: буквы, цифры, M6M6M6, KG01, BBB, A777, имена. Обычная надпись стоит как прокрутка — 100 000, в минус не уйти. Красивые — 150–450 тыс., одна цифра, 7 одинаковых и легендарные — до 1 000 000.'
     :`Крутите и собирайте ${m==='sim'?'красивые номера телефонов':'госномера'}. Цена — по прайсу nomer.srs.kg и реальным продажам, подробнее в «Аккаунт» → «Как считается цена».`}</div>`;
   $('sellLast').disabled=true;$('sellLast').textContent='Продать';
 }
@@ -782,7 +803,7 @@ function spinOnce(){
   $('res').innerHTML='<div class="hint">Крутится…</div>';$('sellLast').disabled=true;$('sellLast').textContent='Продать';
   reel(p,()=>{spinning=false;$('big').classList.remove('lock');showResult(p,true);drawBal();drawRecent();drawStats();celebrate(p)});
 }
-function celebrate(p){checkAch();if(p.pity)toast('Гарантированный дорогой номер!');if(p.tier>=2)burst(p.tier);if(p.tier>=3){toast(RAR[p.tier][0]+'! '+fmt(p.price));vibrate(p.tier===4?[60,40,140]:60)}}
+function celebrate(p){checkAch();if(p.tier>=2)burst(p.tier);if(p.tier>=3){toast(RAR[p.tier][0]+'! '+fmt(p.price));vibrate(p.tier===4?[60,40,140]:60)}}
 /* конфетти */
 const fx=$('fx'),cx=fx.getContext('2d');let parts=[],fxRaf=0;
 function burst(tier){
@@ -857,12 +878,12 @@ function checkLevel(){
 /* ===== сейф ===== */
 let tabC='safe',sel=new Set(),selMode=false,shown=60;
 const inCol=c=>!!c.c;
-const inView=c=>tabC==='col'?inCol(c):!inCol(c);
+const inView=c=>tabC==='col'?inCol(c):tabC==='gar'?isCar(c)&&!inCol(c):!isCar(c)&&!inCol(c);
 function filtered(){return S.col.filter(inView)}
 function drawSafe(){
   const items=filtered().sort((a,b)=>b.price-a.price),col=tabC==='col',nc=S.col.filter(inCol).length;
   for(const x of $('tabs').children)x.classList.toggle('on',x.dataset.c===tabC);
-  $('tabs').children[1].textContent='Коллекция'+(nc?' · '+nc:'');
+  $('tabs').children[2].textContent='Коллекция'+(nc?' · '+nc:'');const ng=S.col.filter(c=>isCar(c)&&!inCol(c)).length;$('tabs').children[1].textContent='Гараж'+(ng?' · '+ng:'');
   $('sval').textContent=fmt(items.reduce((s,c)=>s+c.price,0));$('scnt').textContent=num(items.length)+' шт';drawStats();
   $('sumBtns').hidden=col;$('colHint').hidden=!col;
   $('quick').disabled=!items.length;$('quick').textContent=items.length?`Продать всё · +${fmt(items.reduce((s,c)=>s+c.price,0))}`:'Продать всё';
@@ -870,7 +891,7 @@ function drawSafe(){
   const list=items.slice(0,shown);
   $('list').innerHTML=list.length?list.map(c=>`<button class="row ${sel.has(c.id)?'sel':''}" data-id="${c.id}"><span class="ck"></span><div class="pw">${itemHTML(c)}</div><div class="meta"><b>${fmt(c.price)}</b>${pill(c.tier)}</div></button>`).join('')
     +(items.length>shown?`<button class="selbtn" id="more" style="width:100%">Показать ещё ${items.length-shown}</button>`:'')
-    :`<div class="empty">${col?'В коллекции пока пусто. В сейфе нажмите «Выбрать», отметьте номера и нажмите «В коллекцию».':'Сейф пуст. Все выпавшие номера попадают сюда.'}</div>`;
+    :`<div class="empty">${col?'В коллекции пока пусто. В сейфе нажмите «Выбрать», отметьте номера и нажмите «В коллекцию».':(tabC==='gar'?'Гараж пуст. Машины из контейнеров стоят здесь.':'Сейф пуст. Все выпавшие номера попадают сюда.')}</div>`;
   drawSelBar();
 }
 function drawSelBar(){
@@ -890,8 +911,8 @@ $('list').addEventListener('click',e=>{
 $('selAll').addEventListener('click',()=>{if(sel.size)sel.clear();else filtered().forEach(c=>sel.add(c.id));drawSafe()});
 $('sellSel').addEventListener('click',()=>{if(!sel.size)return;const ids=S.col.filter(c=>sel.has(c.id)&&!inCol(c)).map(c=>c.id);sel.clear();selMode=false;sell(ids)});
 $('toCol').addEventListener('click',()=>{if(!sel.size)return;const set=new Set(sel);if(S.col.filter(inCol).length+set.size>COL_MAX){toast('В коллекции максимум '+COL_MAX+' номеров');return}S.col.forEach(c=>{if(set.has(c.id))c.c='col'});toast(set.size+' шт. добавлено в коллекцию');sel.clear();selMode=false;save();drawSafe();drawRecent()});
-$('quick').addEventListener('click',()=>{const ids=S.col.filter(c=>!inCol(c)).map(c=>c.id);if(!ids.length)return;
-  const v=S.col.filter(c=>!inCol(c)).reduce((s,c)=>s+c.price,0);
+$('quick').addEventListener('click',()=>{const ids=filtered().filter(c=>!inCol(c)).map(c=>c.id);if(!ids.length)return;
+  const v=filtered().filter(c=>!inCol(c)).reduce((s,c)=>s+c.price,0);
   if(confirmTap('quick',`Продать ${ids.length} шт. за ${fmt(v)}? Нажмите ещё раз. Коллекция не продаётся`))sell(ids)});
 
 /* ===== уровни: экран ===== */
@@ -927,16 +948,16 @@ function rulesSheet(){
   <li>Старые номера (B 1234 AB): 4 одинаковые цифры — 300–600 тыс., 0001 — 200 тыс., 0002–0009 — 100 тыс., круглые — 60 тыс., пары — 20 тыс., обычный — 1 500–2 000. Одинаковые буквы ×2, буквы как серия ×3, серии BB, BM, BK, BC, BS +50 000.</li>
   <li>Сим-карты — по прайсам операторов и лотам аукциона О!.</li>
   <li>Чем дороже номер, тем реже он выпадает.</li>
-  <li>Гарантия: раз в 50–80 прокруток госномеров выпадает номер от ${short(PITY_MIN)} до ${short(PITY_MAX)} сом. Если дорогой номер выпал сам, отсчёт начинается заново.</li></ul>
+  <li>Время от времени — случайно, в среднем примерно раз в 80 прокруток — выпадает дорогой номер.</li></ul>
   <h4>Стоимость прокрутки</h4><ul><li>Госномер — ${fmt(COST)}, сим-карта — ${fmt(SIM_COST)}, именной номер — ${fmt(NAME_COST)}.</li>
   <li>Контейнеры: ${Object.values(BOXES).map(B=>B.n.toLowerCase()+' — '+fmt(B.cost)).join(', ')}.</li>
-  <li>Цена прокрутки чуть выше средней стоимости выпадающего (примерно 96%). Поэтому бесконечно фармить нельзя: в плюс выводят редкие дорогие выпадения.</li></ul>
+  <li>Госномера, сим-карты и машины: цена прокрутки чуть выше средней стоимости выпадающего, в плюс выводят редкие дорогие выпадения. Именной номер никогда не стоит дешевле прокрутки.</li></ul>
   <h4>Именные номера</h4><ul><li>Любая надпись до 7 знаков из латинских букв и цифр. Случайные буквы и слова (XKTRA, SALAM, TURBO…) — 70 000, имя (AIBEK, NURLAN…) — 100 000, ARTEM, OLESIA — 150 000, имя с цифрами — 80 % цены имени.</li>
   <li>Одинаковые буквы: BB — 150 000, BBB — 200 000, BBBB — 250 000 … BBBBBB — 400 000 (A на 25 % дороже). Одна буква — 400 000, A — 600 000.</li>
   <li>KG + цифры (KG12) — 150 000, красивые (KG01, KG777, KG1) — 300 000. Одинаковые цифры: 77 — 300 000 и дороже. Одна цифра — 500 000, 7 — 800 000, 1 — 1 000 000.</li>
   <li>Крутые надписи (BOSS, KING, KHAN, BISHKEK…) — 200 000, SULTAN, LEGENDA — 350 000.</li><li>TENGRI — 600 000, MANAS — 800 000, KYRGYZ — 900 000, семь одинаковых букв — 500 000, AAAAAAA — 1 000 000.</li></ul>
   <h4>Машины</h4><ul><li>Цена — средняя по объявлениям lalafo.kg и mashina.kg (ноябрь 2026) для модели и года, по курсу ${USD} сом за $1.</li>
-  <li>Синий контейнер — старые машины (ВАЗ, Matiz, Camry 20…), редко Lexus LX 470. Красный — Camry 70, BMW 5, Lexus ES…, редко BMW M5 и Lexus LX 570. Жёлтый — X7, Cayenne, Land Cruiser 300…, редко G 63, Urus и Rolls-Royce Cullinan.</li>
+  <li>Синий контейнер — старые машины (ВАЗ, Matiz, Camry 20…), редко Lexus LX 470. Красный — Camry 70, BMW 5, Lexus ES…, редко BMW M5 и Lexus LX 570. Жёлтый — X7, Cayenne, Land Cruiser 300, Zeekr, Li L9…, редко G 63, Urus и Cullinan. Чёрный (50 млн) — Bentley, Maybach, Ferrari, Lamborghini, McLaren, Rolls-Royce, примерно 1 из 20 — Bugatti Chiron.</li><li>Машины хранятся в сейфе во вкладке «Гараж».</li>
   <li>Примерно половина машин дешевле контейнера, треть — около его цены, каждая седьмая — в плюс, совсем редкие — в 2–5 раз дороже.</li></ul>
   <h4>Уровни</h4><ul><li>2 уровень — 70 000 на балансе, каждый следующий шаг на 10 000 больше: 80 000, 100 000, 130 000, 170 000… После 50 уровня каждый следующий на 3% дороже, 200 уровень — около 1 млрд.</li><li>Бонус за уровень: 5 000 × (уровень − 1), после 50 уровня — 1% от порога.</li><li>×25 — с 5 уровня, ва-банк — с 10 уровня.</li></ul>
   </div><button class="cancel">Закрыть</button>`);
@@ -1118,7 +1139,7 @@ $('meBtn').addEventListener('click',()=>go('acc'));
 $('aCode').addEventListener('input',()=>{if(tab==='up')$('aGo').textContent=$('aCode').value.trim()?'Создать аккаунт с прогрессом':'Создать аккаунт'});
 
 /* автообновление: телефон держит старую страницу в кэше до 10 минут — проверяем версию на сервере */
-const VER='6';
+const VER='8';
 fetch(location.pathname+'?nocache='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(h=>{const m=h.match(/const VER='(\d+)'/);if(m&&m[1]!==VER&&!sessionStorage.getItem('upd'+m[1])){sessionStorage.setItem('upd'+m[1],1);flush().finally(()=>location.replace(location.pathname+'?v='+m[1]))}}).catch(()=>{});
 /* запуск */
 applyState(FRESH());
