@@ -29,7 +29,7 @@ header{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;align-i
 .view{display:none}.view.on{display:block}
 .seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--card);border-radius:12px;padding:3px;gap:3px}
 .seg button{border-radius:10px;min-height:40px;font-weight:600;font-size:15px;color:var(--mut)}
-.seg button.on{background:var(--card2);color:var(--ink)}.seg button.locked{opacity:.5;font-size:13px}
+.seg button.on{background:var(--card2);color:var(--ink)}.seg.scroll{grid-auto-columns:max-content;overflow-x:auto;scrollbar-width:none}.seg.scroll::-webkit-scrollbar{display:none}.seg.scroll button{padding:0 14px}.seg button.locked{opacity:.5;font-size:13px}
 /* номер (SVG — пропорции как у настоящего знака) */
 .pw{width:100%;container-type:inline-size}
 .plate{display:block;width:100%;height:auto}
@@ -260,7 +260,7 @@ nav button.on{color:var(--ink)}
 </section>
 
 <section class="view" id="v-top">
-  <div class="seg" id="topKind" style="margin-top:14px"><button data-t="bal" class="on">Баланс</button><button data-t="best">Лучший номер</button><button data-t="rich">Дорогие</button><button data-t="n">Прокрутки</button></div>
+  <div class="seg scroll" id="topKind" style="margin-top:14px"><button data-t="bal" class="on">Баланс</button><button data-t="pl">Госномер</button><button data-t="nm">Именной</button><button data-t="sm">Сим-карта</button><button data-t="cr">Машина</button><button data-t="rich">Дорогие</button><button data-t="n">Прокрутки</button></div>
   <div class="tophd"><span class="hint" id="topHint"></span><button class="selbtn" id="topRef">Обновить</button></div>
   <div class="list" id="topList"></div>
 </section>
@@ -536,13 +536,45 @@ const CARS={
  amgone:['Mercedes-AMG ONE','super',2023,2024,2700000,3200000],spectre:['Rolls-Royce Spectre','gt',2024,2025,420000,500000],brabus:['Brabus G 800','gwag',2021,2024,350000,450000],
  flying:['Bentley Flying Spur Mulliner','limo',2022,2025,250000,320000],urusp:['Lamborghini Urus Performante','suv',2023,2025,260000,330000],
  fordgt:['Ford GT','super',2017,2022,900000,1200000],lfa:['Lexus LFA','super',2011,2012,900000,1300000],veyron:['Bugatti Veyron','super',2008,2015,1500000,2000000],
- valkyrie:['Aston Martin Valkyrie','super',2022,2023,3000000,3500000],jesko:['Koenigsegg Jesko','super',2023,2024,3000000,3800000],huayra:['Pagani Huayra','super',2017,2022,2800000,3500000]};
+ valkyrie:['Aston Martin Valkyrie','super',2022,2023,3000000,3500000],jesko:['Koenigsegg Jesko','super',2023,2024,3000000,3800000],huayra:['Pagani Huayra','super',2017,2022,2800000,3500000],
+ lada2114:['ВАЗ 2114','hatch',2003,2013,1800,3500],niva:['Lada Niva 4x4','box',1995,2015,2000,5500],granta:['Lada Granta','sedan',2012,2020,4000,6500],
+ spark:['Chevrolet Spark','hatch',2010,2016,3500,5500],lacetti:['Chevrolet Lacetti','sedan',2005,2012,3500,5500],cobalt:['Chevrolet Cobalt','sedan',2013,2020,5000,7500],
+ golf3:['VW Golf 3','hatch',1992,1997,1800,3000],golf4:['VW Golf 4','hatch',1998,2004,2500,4000],a6c5:['Audi A6 C5','sedan',1998,2004,3500,5500],
+ corolla120:['Toyota Corolla 120','sedan',2001,2006,4500,6500],estima:['Toyota Estima','van',2000,2005,5000,7500],civic7:['Honda Civic','sedan',2001,2005,3500,5000],
+ crv1:['Honda CR-V','suv',1996,2001,3500,5000],stepwgn:['Honda Stepwgn','van',2001,2005,4000,6000],e34:['BMW 5 E34','classic',1988,1995,2500,5000],
+ e46:['BMW 3 E46','sedan',1998,2004,3500,6000],w124:['Mercedes E W124','classic',1986,1995,2500,6000],w140:['Mercedes S W140','limo',1991,1998,4000,8000],
+ mark2:['Toyota Mark II','sedan',1996,2000,4000,6000],pajero2:['Mitsubishi Pajero','box',1992,1999,4000,6500],volga:['ГАЗ Волга 3110','classic',1997,2004,1500,2500],
+ uaz:['УАЗ Хантер','box',2005,2015,4000,7000],solaris:['Hyundai Solaris','sedan',2017,2022,8000,12000],rio:['Kia Rio','sedan',2017,2022,8000,12000],
+ malibu:['Chevrolet Malibu','sedan',2016,2022,8000,11000],optima:['Kia Optima','sedan',2016,2020,11000,14000],corolla210:['Toyota Corolla','sedan',2019,2023,15000,20000],
+ c180:['Mercedes C180','sedan',2011,2014,10000,14000],e60:['BMW 5 E60','sedan',2004,2010,7000,11000],e39m5:['BMW M5 E39','sedan',1999,2003,15000,25000],
+ f30:['BMW 3 F30','sedan',2012,2018,13000,20000],a4:['Audi A4','sedan',2016,2020,17000,24000],q5:['Audi Q5','suv',2017,2020,22000,30000],
+ gl166:['Mercedes GL','suv',2013,2016,20000,28000],w221:['Mercedes S W221','limo',2006,2012,12000,20000],s63w221:['Mercedes S63 AMG W221','limo',2010,2013,20000,30000],
+ e63w212:['Mercedes E63 AMG W212','sedan',2012,2016,25000,35000],lc200:['Toyota Land Cruiser 200','box',2008,2014,25000,35000],crv5:['Honda CR-V','suv',2017,2021,18000,26000],
+ outlander:['Mitsubishi Outlander','suv',2016,2021,15000,21000],santafe:['Hyundai Santa Fe','suv',2018,2022,20000,28000],sorento:['Kia Sorento','suv',2018,2022,20000,28000],
+ k8:['Kia K8','sedan',2021,2023,25000,32000],grandeur:['Hyundai Grandeur','sedan',2019,2022,18000,26000],tesla3:['Tesla Model 3','sedan',2019,2022,20000,28000],
+ prius:['Toyota Prius','hatch',2016,2020,12000,17000],songplus:['BYD Song Plus','suv',2023,2025,20000,25000],tiggo7:['Chery Tiggo 7 Pro','suv',2022,2025,14000,18000],
+ rexton:['SsangYong Rexton Sports','box',2022,2026,12000,14000],hilux:['Toyota Hilux','box',2016,2021,22000,30000],wrangler:['Jeep Wrangler','box',2015,2020,25000,34000],
+ mustang:['Ford Mustang','gt',2015,2020,18000,28000],camaro:['Chevrolet Camaro','gt',2016,2020,18000,27000],challeng:['Dodge Challenger','gt',2015,2020,20000,30000],
+ m3:['BMW M3 G80','sport',2021,2024,70000,90000],m4:['BMW M4 G82','gt',2021,2024,60000,80000],m2:['BMW M2','gt',2023,2025,65000,80000],
+ m8:['BMW M8 Gran Coupe','sport',2020,2023,90000,120000],x5m:['BMW X5 M','suv',2020,2024,90000,130000],x6m:['BMW X6 M','suv',2020,2024,95000,135000],
+ e63s:['Mercedes-AMG E63 S','sport',2018,2023,60000,95000],e53:['Mercedes-AMG E53','sport',2019,2023,50000,70000],c63:['Mercedes-AMG C63','sport',2017,2021,42000,60000],
+ s63:['Mercedes-AMG S63','limo',2018,2022,65000,110000],gle63:['Mercedes-AMG GLE 63','suv',2020,2024,90000,130000],gt63:['Mercedes-AMG GT 63','sport',2019,2023,90000,140000],
+ rs6:['Audi RS6 Avant','sport',2020,2024,90000,130000],rs7:['Audi RS7','sport',2020,2024,90000,125000],rsq8:['Audi RS Q8','suv',2020,2024,100000,150000],
+ r8:['Audi R8','super',2017,2022,120000,180000],taycan:['Porsche Taycan Turbo S','sport',2021,2024,110000,160000],panamera:['Porsche Panamera','limo',2018,2023,70000,120000],
+ macan:['Porsche Macan','suv',2019,2023,45000,70000],rrsport:['Range Rover Sport','suv',2018,2023,55000,110000],defender:['Land Rover Defender','box',2020,2024,60000,100000],
+ velar:['Range Rover Velar','suv',2018,2022,40000,60000],escalade:['Cadillac Escalade','box',2018,2024,50000,110000],tahoe:['Chevrolet Tahoe','box',2018,2023,40000,70000],
+ trx:['RAM TRX','box',2021,2024,80000,110000],raptor:['Ford F-150 Raptor','box',2019,2024,55000,90000],lc500:['Lexus LC 500','gt',2018,2023,70000,95000],
+ g90:['Genesis G90','limo',2022,2025,60000,85000],gv80:['Genesis GV80','suv',2021,2024,45000,60000],plaid:['Tesla Model S Plaid','sport',2021,2024,70000,95000],
+ h9:['Hongqi H9','limo',2022,2025,50000,70000],levante:['Maserati Levante','suv',2018,2022,45000,70000],qporte:['Maserati Quattroporte','limo',2018,2022,50000,80000],
+ vantage:['Aston Martin Vantage','gt',2019,2023,110000,150000],ftype:['Jaguar F-Type R','gt',2019,2023,60000,90000],c8:['Chevrolet Corvette C8','super',2020,2024,70000,100000],
+ gtr:['Nissan GT-R','gt',2017,2022,90000,130000],supra:['Toyota Supra','gt',2020,2024,45000,60000],g6344:['Mercedes-AMG G 63 4x4²','gwag',2022,2023,300000,400000],
+ dawn:['Rolls-Royce Dawn','gt',2018,2023,280000,380000],avents:['Lamborghini Aventador S','super',2017,2021,380000,480000],portof:['Ferrari Portofino','gt',2018,2022,180000,230000]};
 /* контейнеры: модель и её частота */
 const BOXES={
- blue:{n:'Синий',c:'#2d63b8',d:'#1f4a8c',cost:0,pool:{vaz:30,matiz:26,fit:20,vectra:20,priora:18,nexia:20,m190:14,audi100:14,passat:14,odyssey:12,e39:12,w210:12,camry20:10,ipsum:6,camry40:3,lx470:.5}},
- red:{n:'Красный',c:'#b8373f',d:'#8e252c',cost:0,pool:{accord:20,elantra:20,camry55:18,e212:14,f10:14,sonata:14,camry70:14,k5:12,tucson:12,sportage:12,rav4:10,c205:10,a6:9,tiguan:9,highl:6,es:10,rx:8,x5:5,prado:5,m5f90:.7,lx570:.45}},
- gold:{n:'Жёлтый',c:'#d9a521',d:'#a87c12',cost:0,pool:{zeekr:16,palisade:20,l9:14,rx350:18,ls:10,gle:12,modelx:8,q8:10,x6:10,w214:8,x7:14,cayenne:14,lc300:12,gx550:8,rr:8,s223:7,lx600:5,m5g90:4,g63:4,urus:1,cullinan:.5}},
- black:{n:'Чёрный',c:'#2a2a2e',d:'#111113',cost:0,fix:50000000,pool:{gls600:3,bentayga:3,maybach:3,dbx:3,p911:4,contgt:4,roma:4,flying:4,huracan:5,urus:5,urusp:5,gt3rs:5,f8:5,ghost:6,f296:6,mcl750:6,brabus:6,cullinan:7,spectre:7,pista:7,phantom:8,mcl765:7,sf90:8,svj:8,puro:8,f812:8,revuelto:8,fordgt:2,lfa:2,senna:2,veyron:1.6,p918:1.5,chiron:1.6,huayra:.6,amgone:.6,valkyrie:.5,jesko:.5}}};
+ blue:{n:'Синий',c:'#2d63b8',d:'#1f4a8c',cost:0,pool:{vaz:30,matiz:26,fit:20,vectra:20,priora:18,nexia:20,m190:14,audi100:14,passat:14,odyssey:12,e39:12,w210:12,camry20:10,ipsum:6,camry40:3,lx470:.5,lada2114:19.7,niva:13.0,granta:8.7,spark:10.4,lacetti:10.4,cobalt:7.0,golf3:20,golf4:15.4,a6c5:10.4,corolla120:8.2,estima:7.0,civic7:11.2,crv1:11.2,stepwgn:9.2,e34:13.0,e46:9.8,w124:11.2,w140:7.4,mark2:9.2,pajero2:8.7,volga:20,uaz:8.2}},
+ red:{n:'Красный',c:'#b8373f',d:'#8e252c',cost:0,pool:{accord:20,elantra:20,camry55:18,e212:14,f10:14,sonata:14,camry70:14,k5:12,tucson:12,sportage:12,rav4:10,c205:10,a6:9,tiguan:9,highl:6,es:10,rx:8,x5:5,prado:5,m5f90:.7,lx570:.45,solaris:20,rio:20,malibu:20,optima:18.6,corolla210:12.4,c180:19.5,e60:20,e39m5:10.6,f30:13.3,a4:10.3,q5:7.7,gl166:8.5,w221:13.8,s63w221:8.1,e63w212:6.5,lc200:6.5,crv5:9.4,outlander:12.0,santafe:8.5,sorento:8.5,k8:6.9,grandeur:9.4,tesla3:8.5,prius:15.6,songplus:9.2,tiggo7:13.8,rexton:17.7,hilux:7.7,wrangler:6.6,mustang:8.9,camaro:9.2,challeng:8.1}},
+ gold:{n:'Жёлтый',c:'#d9a521',d:'#a87c12',cost:0,pool:{zeekr:16,palisade:20,l9:14,rx350:18,ls:10,gle:12,modelx:8,q8:10,x6:10,w214:8,x7:14,cayenne:14,lc300:12,gx550:8,rr:8,s223:7,lx600:5,m5g90:4,g63:4,urus:1,cullinan:.5,m3:11.1,m4:13.0,m2:12.5,m8:8.0,x5m:7.6,x6m:7.2,e63s:11.5,e53:15.7,c63:19.1,s63:10.0,gle63:7.6,gt63:7.2,rs6:7.6,rs7:7.8,rsq8:6.5,r8:5.2,taycan:5.9,panamera:9.0,macan:16.5,rrsport:10.7,defender:11.1,velar:19.5,escalade:11.1,tahoe:17.4,trx:9.0,raptor:12.5,lc500:10.7,g90:12.5,gv80:18.4,plaid:10.7,h9:15.7,levante:16.5,qporte:14.2,vantage:6.2,ftype:12.0,c8:10.3,gtr:7.6,supra:18.4}},
+ black:{n:'Чёрный',c:'#2a2a2e',d:'#111113',cost:0,fix:50000000,pool:{gls600:3,bentayga:3,maybach:3,dbx:3,p911:4,contgt:4,roma:4,flying:4,huracan:5,urus:5,urusp:5,gt3rs:5,f8:5,ghost:6,f296:6,mcl750:6,brabus:6,cullinan:7,spectre:7,pista:7,phantom:8,mcl765:7,sf90:8,svj:8,puro:8,f812:8,revuelto:8,fordgt:2,lfa:2,senna:3,veyron:2.8,p918:2.6,chiron:3.4,huayra:1.4,amgone:1.4,valkyrie:1.2,jesko:1.2,g6344:14.1,dawn:15.1,avents:11.0,portof:20}}};
 const CLR=[['Белый','#ececef'],['Чёрный','#1c1d22'],['Серебристый','#a9afb7'],['Серый','#5d636c'],['Синий','#2554a6'],['Красный','#b3202a'],['Зелёный','#2a6a4a'],['Бежевый','#c9b48a'],['Жёлтый','#e0b020'],['Оранжевый','#d8651f']];
 const CLR_W=[22,24,16,14,8,6,3,4,1.5,1.5];
 const isCar=p=>p.kind==='car';
@@ -1102,8 +1134,12 @@ async function flush(){
   try{await fb.db.collection('board').doc(uid).set(boardData())}catch(e){}
 }
 /* ===== топ игроков ===== */
-const boardData=()=>({nick:S.nick||'',bal:Math.round(S.bal),best:S.best?S.best.price:0,bestLab:S.best?S.best.lab:'',rich:S.col.filter(c=>c.price>=50000).length,lvl:S.lvl,n:S.n||0,season:3,val:Math.round(safeVal()),ach:S.ach.length,top:topItems(6).map(packItem),bi:S.best&&S.best.it||null,updated:firebase.firestore.FieldValue.serverTimestamp()});
-const TOPK={n:'Сколько всего прокруток',bal:'Деньги на балансе',best:'Самый дорогой номер или сим-карта, выпавшие игроку',rich:'Сколько в сейфе номеров и сим-карт дороже 50 000 сом'};
+/* самое дорогое у игрока по видам: госномер, именной, сим-карта, машина */
+const bestOf=f=>S.col.filter(f).reduce((a,c)=>!a||c.price>a.price?c:a,null);
+const KINDS={pl:c=>kindOf(c)==='plate',nm:c=>kindOf(c)==='name',sm:isSim,cr:isCar};
+const kindTop=()=>{const o={};for(const k in KINDS){const b=bestOf(KINDS[k]);o[k]=b?b.price:0;o[k+'i']=b?packItem(b):null}return o};
+const boardData=()=>({...kindTop(),nick:S.nick||'',bal:Math.round(S.bal),best:S.best?S.best.price:0,bestLab:S.best?S.best.lab:'',rich:S.col.filter(c=>c.price>=50000).length,lvl:S.lvl,n:S.n||0,season:3,val:Math.round(safeVal()),ach:S.ach.length,top:topItems(6).map(packItem),bi:S.best&&S.best.it||null,updated:firebase.firestore.FieldValue.serverTimestamp()});
+const TOPK={pl:'Самый дорогой госномер у игрока',nm:'Самый дорогой именной номер',sm:'Самая дорогая сим-карта',cr:'Самая дорогая машина в гараже',n:'Сколько всего прокруток',bal:'Деньги на балансе',best:'Самый дорогой номер или сим-карта, выпавшие игроку',rich:'Сколько в сейфе номеров и сим-карт дороже 50 000 сом'};
 let topKind='bal',topCache={};
 async function drawTop(force){
   $('topHint').textContent=TOPK[topKind];
@@ -1120,10 +1156,10 @@ function itemFromLab(lab,price){let m;
   if(m=/^([A-Z]) (\d{4}) ([A-Z]{2})$/.exec(lab))return OLD[m[1]]?{fmt:'old',r:m[1],d:m[2],l:m[3]}:null;
   if(m=/^(0\d{3}) (\d{3}) (\d{3})$/.exec(lab)){const op=Object.keys(OPS).find(k=>OPS[k].pre.includes(m[1]))||'o';return {kind:'sim',op,pre:m[1],s:m[2]+m[3],cat:simCat(price||0)}}
   return null}
-function topPlate(r){const it=r.bi?hydrate(r.bi):r.bestLab&&itemFromLab(r.bestLab,r.best);return it?`<div class="pw tpw">${itemHTML(it)}</div>`:''}
+function topPlate(r,k){const q=KINDS[k]?r[k+'i']:r.bi;let it=null;try{it=q?hydrate(q):k==='best'&&r.bestLab?itemFromLab(r.bestLab,r.best):null}catch(e){}return it?`<div class="pw tpw">${itemHTML(it)}</div>`:''}
 function renderTop(){
   const k=topKind,rows=topCache[k].rows;
-  $('topList').innerHTML=rows.length?rows.map((r,i)=>`<div class="tp ${r.id===uid?'mine':''}" data-i="${i}"><span class="n">${i<3?['🥇','🥈','🥉'][i]:i+1}</span><div class="nm">${esc(r.nick||'Игрок')}${r.id===uid?' (вы)':''}<small>Уровень ${r.lvl||1}</small>${k==='best'?topPlate(r):''}</div><b>${k==='rich'?num(r.rich||0)+' шт':k==='n'?num(r.n||0):fmt(r[k]||0)}</b></div>`).join(''):'<div class="empty">Пока никого нет</div>';
+  $('topList').innerHTML=rows.length?rows.map((r,i)=>`<div class="tp ${r.id===uid?'mine':''}" data-i="${i}"><span class="n">${i<3?['🥇','🥈','🥉'][i]:i+1}</span><div class="nm">${esc(r.nick||'Игрок')}${r.id===uid?' (вы)':''}<small>Уровень ${r.lvl||1}</small>${KINDS[k]||k==='best'?topPlate(r,k):''}</div><b>${k==='rich'?num(r.rich||0)+' шт':k==='n'?num(r.n||0):fmt(r[k]||0)}</b></div>`).join(''):'<div class="empty">Пока никого нет</div>';
 }
 $('topKind').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;topKind=b.dataset.t;for(const x of $('topKind').children)x.classList.toggle('on',x===b);drawTop()});
 $('topRef').addEventListener('click',()=>drawTop(true));
@@ -1157,7 +1193,7 @@ $('meBtn').addEventListener('click',()=>go('acc'));
 $('aCode').addEventListener('input',()=>{if(tab==='up')$('aGo').textContent=$('aCode').value.trim()?'Создать аккаунт с прогрессом':'Создать аккаунт'});
 
 /* автообновление: телефон держит старую страницу в кэше до 10 минут — проверяем версию на сервере */
-const VER='11';
+const VER='12';
 fetch(location.pathname+'?nocache='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(h=>{const m=h.match(/const VER='(\d+)'/);if(m&&m[1]!==VER&&!sessionStorage.getItem('upd'+m[1])){sessionStorage.setItem('upd'+m[1],1);flush().finally(()=>location.replace(location.pathname+'?v='+m[1]))}}).catch(()=>{});
 /* запуск */
 applyState(FRESH());
