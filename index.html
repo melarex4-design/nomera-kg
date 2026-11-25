@@ -490,8 +490,16 @@ let S=FRESH();
 /* прогресс из версии без аккаунтов — предложим перенести при регистрации */
 let LEGACY=null;try{const s=JSON.parse(localStorage.getItem('kgplates3')||'null');if(s&&Array.isArray(s.col)&&(s.col.length||s.bal!==START))LEGACY=s}catch(e){}
 let LK='kgplates3',fb=null,uid=null,cloudT=0,dirty=false;
-const save=()=>{if(!uid)return;try{localStorage.setItem(LK,JSON.stringify(S))}catch(e){};cloudSave()};
-function packState(st){const c={...st,col:st.col.map(({f,note,nb,off,...r})=>r)};return 'KG1:'+btoa(unescape(encodeURIComponent(JSON.stringify(c))))}
+/* сейф хранится одной записью в базе (лимит ~1 МБ), поэтому держим не больше SAFE_MAX номеров вне коллекции */
+const SAFE_MAX=1500,COL_MAX=300;
+function trimSafe(){
+  const free=S.col.filter(c=>!c.c);if(free.length<=SAFE_MAX)return 0;
+  free.sort((a,b)=>a.price-b.price);const drop=new Set(free.slice(0,free.length-SAFE_MAX).map(c=>c.id));let v=0;
+  S.col=S.col.filter(c=>{if(drop.has(c.id)){v+=c.price;return false}return true});S.bal+=v;S.earned+=v;
+  toast(`Сейф полный (${num(SAFE_MAX)} шт): самые дешёвые ${num(drop.size)} шт проданы за ${fmt(v)}`);return drop.size}
+const save=()=>{if(!uid)return;trimSafe();try{localStorage.setItem(LK,JSON.stringify(S))}catch(e){};cloudSave()};
+/* цена, редкость и описание пересчитываются при загрузке — в базу их не пишем */
+function packState(st){const c={...st,col:st.col.map(({f,note,nb,off,price,tier,cat,...r})=>r)};return 'KG1:'+btoa(unescape(encodeURIComponent(JSON.stringify(c))))}
 /* пересчёт по новой системе цен */
 function rehydrate(st){st.col=(st.col||[]).filter(p=>p&&p.id);
   for(const p of st.col){const v=evalAny(p);p.f=v.f;p.note=v.note;p.off=v.off;if(isSim(p))p.cat=v.cat;p.price=v.price;p.tier=tierAny(p)}
@@ -619,12 +627,12 @@ function multiSpin(n,title,auto){
   S.bal-=C*n;S.spent+=C*n;
   /* ва-банк: обычные номера сразу продаются, иначе сейф не поместится в базу */
   const got=[];let autoV=0,autoN=0;
-  for(let i=0;i<n;i++){const p=makeItem();p.t+=i;track(p);if(auto&&p.tier===0){autoV+=p.price;autoN++;continue}S.col.push(p);got.push(p)}
+  for(let i=0;i<n;i++){const p=makeItem();p.t+=i;track(p);if(auto&&p.tier<2){autoV+=p.price;autoN++;continue}S.col.push(p);got.push(p)}
   if(autoN){S.bal+=autoV;S.earned+=autoV}
   got.sort((a,b)=>b.price-a.price);if(got.length)S.last=got[0].id;save();drawBal();if(got.length)showResult(got[0],true);drawRecent();drawStats();if(got.length&&got[0].tier>=2)burst(got[0].tier);
   const total=got.reduce((s,p)=>s+p.price,0)+autoV,paid=C*n,cheap=got.filter(p=>p.tier===0),top=got.slice(0,10),diff=total-paid;
   openSheet(`<h3>${title}</h3><p>${n} шт · потрачено ${fmt(paid)} · стоят ${fmt(total)}</p>
-    ${autoN?`<p>Обычные номера (${num(autoN)} шт) сразу проданы за ${fmt(autoV)}. В сейф попали ${num(got.length)} шт.</p>`:''}
+    ${autoN?`<p>Обычные и необычные номера (${num(autoN)} шт) сразу проданы за ${fmt(autoV)}. В сейф попали ${num(got.length)} шт.</p>`:''}
     <div class="delta ${diff>=0?'win':'loss'}">${diff>=0?'+':'−'}${fmt(Math.abs(diff))}</div>
     ${n>10?'<p>Лучшие 10:</p>':''}
     <div class="grid2">${top.map(p=>`<div class="mini" style="--rc:${rc(p.tier)}"><div class="pw">${itemHTML(p)}</div><div class="v"><span>${fmt(p.price)}</span><i title="${RAR[p.tier][0]}"></i></div></div>`).join('')}</div>
@@ -705,7 +713,7 @@ $('list').addEventListener('click',e=>{
   sel.has(id)?sel.delete(id):sel.add(id);r.classList.toggle('sel');drawSelBar()});
 $('selAll').addEventListener('click',()=>{if(sel.size)sel.clear();else filtered().forEach(c=>sel.add(c.id));drawSafe()});
 $('sellSel').addEventListener('click',()=>{if(!sel.size)return;const ids=S.col.filter(c=>sel.has(c.id)&&!inCol(c)).map(c=>c.id);sel.clear();selMode=false;sell(ids)});
-$('toCol').addEventListener('click',()=>{if(!sel.size)return;const set=new Set(sel);S.col.forEach(c=>{if(set.has(c.id))c.c='col'});toast(set.size+' шт. добавлено в коллекцию');sel.clear();selMode=false;save();drawSafe();drawRecent()});
+$('toCol').addEventListener('click',()=>{if(!sel.size)return;const set=new Set(sel);if(S.col.filter(inCol).length+set.size>COL_MAX){toast('В коллекции максимум '+COL_MAX+' номеров');return}S.col.forEach(c=>{if(set.has(c.id))c.c='col'});toast(set.size+' шт. добавлено в коллекцию');sel.clear();selMode=false;save();drawSafe();drawRecent()});
 $('quick').addEventListener('click',()=>{const ids=S.col.filter(c=>!inCol(c)).map(c=>c.id);if(!ids.length)return;
   const v=S.col.filter(c=>!inCol(c)).reduce((s,c)=>s+c.price,0);
   if(confirmTap('quick',`Продать ${ids.length} шт. за ${fmt(v)}? Нажмите ещё раз. Коллекция не продаётся`))sell(ids)});
@@ -761,7 +769,7 @@ function openDetail(id){
     <div class="row3" style="grid-template-columns:1fr 1fr"><button class="b2" id="dCol">${cl?'Убрать из коллекции':'В коллекцию'}</button><button class="b2" id="dSell" style="background:var(--red);color:#fff">Продать<small>+${fmt(p.price)}</small></button></div><button class="cancel">Закрыть</button></div>`);
   $('sheet').onclick=e=>{
     if(e.target.closest('#dSell')){if(cl&&!confirmTap('cs'+id,'Номер из коллекции. Нажмите «Продать» ещё раз'))return;closeSheet();sell([id])}
-    else if(e.target.closest('#dCol')){p.c=cl?'':'col';save();closeSheet();toast(cl?'Убрано из коллекции':'Добавлено в коллекцию');if($('v-safe').classList.contains('on'))drawSafe();drawRecent()}};
+    else if(e.target.closest('#dCol')){if(!cl&&S.col.filter(inCol).length>=COL_MAX){toast('В коллекции максимум '+COL_MAX+' номеров');return}p.c=cl?'':'col';save();closeSheet();toast(cl?'Убрано из коллекции':'Добавлено в коллекцию');if($('v-safe').classList.contains('on'))drawSafe();drawRecent()}};
 }
 function moveSheet(ids){
   const set=new Set(ids);
@@ -814,9 +822,9 @@ function cloudSave(){if(!uid||!fb)return;dirty=true;clearTimeout(cloudT);cloudT=
 async function flush(){
   if(!dirty||!uid||!fb)return;dirty=false;clearTimeout(cloudT);
   const data=packState(S);
-  if(data.length>900000)toast('Сейф почти переполнен — продайте часть номеров');
+  if(data.length>950000){toast('Сейф слишком большой — продайте часть номеров, иначе прогресс не сохранится');dirty=true;return}
   try{await fb.db.collection('users').doc(uid).set({nick:S.nick||'',state:data,bal:S.bal,lvl:S.lvl,updated:firebase.firestore.FieldValue.serverTimestamp()})}
-  catch(e){dirty=true;cloudT=setTimeout(flush,8000)}
+  catch(e){dirty=true;cloudT=setTimeout(flush,8000);if(Date.now()-(flush._w||0)>60000){flush._w=Date.now();toast('Не удалось сохранить прогресс — проверьте интернет')}}
   try{await fb.db.collection('board').doc(uid).set(boardData())}catch(e){}
 }
 /* ===== топ игроков ===== */
