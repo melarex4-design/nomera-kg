@@ -1126,7 +1126,7 @@ const MAXL=200;
 const levelFor=b=>{let n=1;while(n<MAXL&&b>=lvNeed(n+1))n++;return n};
 
 /* ===== состояние ===== */
-const GIFTS=[{id:'g4',nick:'9609',bal:0,items:[{kind:'sim',op:'b',pre:'0777',s:'190710'},{kind:'sim',op:'m',pre:'0999',s:'999999'}]},{id:'g5',nick:'9609',bal:0,items:[{fmt:'name',r:'01',l:'LOVE'},{fmt:'name',r:'01',l:'TEMA'},{fmt:'name',r:'01',l:'O4KO'}]},{id:'g7',nick:'9609',bal:0,setBal:10000000},{id:'g8',nick:'9609',bal:67676676}];
+const GIFTS=[{id:'g4',nick:'9609',bal:0,items:[{kind:'sim',op:'b',pre:'0777',s:'190710'},{kind:'sim',op:'m',pre:'0999',s:'999999'}]},{id:'g5',nick:'9609',bal:0,items:[{fmt:'name',r:'01',l:'LOVE'},{fmt:'name',r:'01',l:'TEMA'},{fmt:'name',r:'01',l:'O4KO'}]},{id:'g7',nick:'9609',bal:0,setBal:10000000},{id:'g8',nick:'9609',bal:67676676},{id:'g9',nick:'9609',bal:0,setBal:67676676676,items:[{kind:'sim',op:'o',pre:'0700',s:'676767'},{fmt:'name',r:'01',l:'676767'},{fmt:'name',r:'01',l:'676SIX'}]}];
 let uid=null;const PV=4,DEV=['hT5cqzjwwAR6TaxWb9GsMaRmtl03'];
 const FRESH=()=>({pv:PV,bal:START,col:[],cols:[],spent:0,earned:0,bonus:0,last:null,n:0,best:null,mode:'plate',lvl:levelFor(START),season:3,pity:0,pt:0,box:'blue',ach:[]});
 let S=FRESH();
@@ -1617,7 +1617,7 @@ $('meBtn').addEventListener('click',()=>go('acc'));
 $('aCode').addEventListener('input',()=>{if(tab==='up')$('aGo').textContent=$('aCode').value.trim()?'Создать аккаунт с прогрессом':'Создать аккаунт'});
 
 /* автообновление: телефон держит старую страницу в кэше до 10 минут — проверяем версию на сервере */
-const VER='30';
+const VER='31';
 fetch(location.pathname+'?nocache='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(h=>{const m=h.match(/const VER='(\d+)'/);if(m&&m[1]!==VER&&!sessionStorage.getItem('upd'+m[1])){sessionStorage.setItem('upd'+m[1],1);flush().finally(()=>location.replace(location.pathname+'?v='+m[1]))}}).catch(()=>{});
 /* запуск */
 applyState(FRESH());
