@@ -321,7 +321,7 @@ const RW={'01':26,'02':10,'03':6,'04':12,'05':4,'06':12,'07':4,'08':16,'09':10};
 /* какая доля рыночной надбавки достаётся региону: в Бишкеке торги самые дорогие */
 const RF={'00':1,'01':1,'08':.85,'02':.75,'09':.7,'04':.6,'06':.6,'03':.45,'05':.45,'07':.45};
 const OLD={B:['01',18,1],E:['01',5,1],F:['01',3,1],Z:['02',8,.75],A:['03',5,.45],D:['04',10,.6],N:['05',3,.45],H:['05',2,.45],O:['06',10,.6],T:['07',4,.45],C:['08',10,.85],S:['08',5,.85],I:['09',9,.7]};
-const START=50000,COST=1500,USD=87.45,NEW_CAP=2620000,OLD_CAP=8740000,OLD_CHANCE=.1,ALLIN_MAX=500;
+const START=50000,COST=1500,USD=87.45,NEW_CAP=2620000,OLD_CAP=8740000,OLD_CHANCE=.05,ALLIN_MAX=500;
 const LET='ABCDEFGHIJKLMNOPRSTUVWXYZ',P_A=.6,LET_NA=LET.slice(1);
 const OLD_SER=['BB','BM','BK','BC','BS'];
 const WORDS=['AMG','BMW','VIP','ATA','NEO','MMA','KGZ','BOS','TOP','CEO','ACE','PRO','JET','LEX','SUN','BAR','DOC','CAR','GOV','GMC','SPR','CRV','DOS','SOS','MER','BOSS','RAV','KIA','AUD','TOY','LUX','MAN','GTR','RS6','ZIL','UAZ','VAZ','EGO','WIN','BIG','BOY','ART','ONE'];
@@ -487,7 +487,7 @@ function valueSim(pre,s){
 function rawSim(){let t=Math.random()*100,op='o';for(const k in OPS){t-=OPS[k].w;if(t<0){op=k;break}}return {kind:'sim',op,pre:pick(OPS[op].pre),s:String(Math.floor(Math.random()*1e6)).padStart(6,'0')}}
 function evalSim(p){const v=valueSim(p.pre,p.s);const cat=simCat(v.price);v.f.unshift(OPS[p.op].n+' · '+OPS[p.op].cat[cat]);
   v.note=v.rec?'Реальная продажа: '+v.rec[1]:cat>=3?'Такие номера операторы продают в категориях VIP / Платина и на аукционах':cat===2?'Уровень «Золото»: у MEGA такие номера стоят 3 000 сом по прайсу':'Цена по прайсам операторов';delete v.rec;return Object.assign(v,{cat,off:0})}
-const JACK=1/1000,JMIN=50000;
+const JACK=1/5000,JMIN=50000;
 function jackSim(){
   const D='0123456789',d=()=>pick(D.slice(1));
   const gens=[[50,()=>d()+'00000'],[30,()=>{const a=d(),i=Math.floor(Math.random()*6);const z=[...'000000'];z[i]=a;return z.join('')}],[13,()=>{const a=d();return a+a+'0000'}],[3,()=>{const a=d();return a+'0000'+a}],[2,()=>pick(D).repeat(6)],[2,()=>{const x=d()+pick(D)+pick(D);return x+x}]];
@@ -1099,9 +1099,11 @@ function plateIn(lo,hi){let p;for(let i=0;i<6000;i++){p=rawPlate(Math.random()<O
   if(!p.price){p={fmt:'new',r:'01',d:'777',l:'KGZ'};Object.assign(p,evalPlate(p))}
   return Object.assign(p,{id:uid6(),t:Date.now(),tier:tierOf(p.price),c:''})}
 const makePityPlate=()=>plateIn(PITY_MIN,PITY_MAX);
-/* шансы на плюс: каждая ~14-я прокрутка — номер 2 500–4 200, каждая ~75-я — 8 000–20 000, плюс редкие дорогие сами по себе */
-const WIN_P=[[1/75,8000,20000],[1/14,2500,4200]];
-function makePlateP(){let r=Math.random();for(const [q,lo,hi] of WIN_P){if(r<q)return plateIn(lo,hi);r-=q}return makePlate()}
+/* шансы: примерно раз в 300 прокруток — номер 100 000–110 000, раз в 45 — 2 500–4 000; цена прокрутки 1 500 почти равна средней цене номера */
+const WIN_P=[[1/300,100000,110000],[1/45,2500,4000]];
+/* обычная прокрутка — номер до BASE_MAX; всё дороже выдают только шансы WIN_P */
+const BASE_MAX=8000;
+function makePlateP(){let r=Math.random();for(const [q,lo,hi] of WIN_P){if(r<q)return plateIn(lo,hi);r-=q}let p;for(let i=0;i<30;i++){p=makePlate();if(p.price<=BASE_MAX)break}return p}
 const isSim=p=>p.kind==='sim';
 const kindOf=p=>isCar(p)?'car':isSim(p)?'sim':p.fmt==='name'?'name':'plate';
 const evalAny=p=>isCar(p)?evalCar(p):isSim(p)?evalSim(p):evalPlate(p);
@@ -1255,7 +1257,11 @@ function reel(p,done){
     requestAnimationFrame(fr)};requestAnimationFrame(fr);
 }
 function track(p){S.n++;if(!S.best||p.price>S.best.price)S.best={lab:labelOf(p),price:p.price,tier:p.tier,id:p.id,it:packItem(p)}}
-const makeItem=()=>S.mode==='sim'?makeSim():S.mode==='name'?makeName():S.mode==='car'?makeCar(S.box||'blue'):makePlateP();
+/* сим-карты: примерно раз в 450 прокруток — симка 30 000–45 000 */
+const WIN_S=[[1/450,30000,45000]];
+function simIn(lo,hi){for(let i=0;i<5000;i++){const p=rawSim(),v=evalSim(p);if(v.price>=lo&&v.price<=hi)return Object.assign(p,v,{id:uid6(),t:Date.now(),tier:tierSim(v.price),c:''})}return makeSim()}
+function makeSimP(){let r=Math.random();for(const [q,lo,hi] of WIN_S){if(r<q)return simIn(lo,hi);r-=q}return makeSim()}
+const makeItem=()=>S.mode==='sim'?makeSimP():S.mode==='name'?makeName():S.mode==='car'?makeCar(S.box||'blue'):makePlateP();
 function spinOnce(){
   const C=cost();if(spinning||S.bal<C)return;
   spinning=true;S.bal-=C;S.spent+=C;drawBal();
@@ -1408,7 +1414,7 @@ function rulesSheet(){
   <li>Старые номера (B 1234 AB): 4 одинаковые цифры — 300–600 тыс., 0001 — 200 тыс., 0002–0009 — 100 тыс., круглые — 60 тыс., пары — 20 тыс., обычный — 1 500–2 000. Одинаковые буквы ×2, буквы как серия ×3, серии BB, BM, BK, BC, BS +50 000.</li>
   <li>Сим-карты — по прайсам операторов и лотам аукциона О!.</li>
   <li>Чем дороже номер, тем реже он выпадает.</li>
-  <li>Примерно каждая 7-я прокрутка госномера уходит в плюс: каждая ~14-я — номер 2 500–4 200, каждая ~75-я — 8 000–20 000, а самые дорогие номера выпадают редко сами по себе.</li></ul>
+  <li>Госномера: примерно раз в 300 прокруток — номер от 100 000 сом, раз в 45 — номер 2 500–4 000. Сим-карты: примерно раз в 450 прокруток — симка 30 000–45 000.</li></ul>
   <h4>Стоимость прокрутки</h4><ul><li>Госномер — ${fmt(COST)}, сим-карта — ${fmt(SIM_COST)}, именной номер — ${fmt(NAME_COST)}.</li>
   <li>Контейнеры: ${Object.values(BOXES).map(B=>B.n.toLowerCase()+' — '+fmt(B.cost)).join(', ')}.</li>
   <li>Госномера, сим-карты и машины: цена прокрутки чуть выше средней стоимости выпадающего, в плюс выводят редкие дорогие выпадения. Именной номер никогда не стоит дешевле прокрутки.</li></ul>
@@ -1604,7 +1610,7 @@ $('meBtn').addEventListener('click',()=>go('acc'));
 $('aCode').addEventListener('input',()=>{if(tab==='up')$('aGo').textContent=$('aCode').value.trim()?'Создать аккаунт с прогрессом':'Создать аккаунт'});
 
 /* автообновление: телефон держит старую страницу в кэше до 10 минут — проверяем версию на сервере */
-const VER='14';
+const VER='15';
 fetch(location.pathname+'?nocache='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(h=>{const m=h.match(/const VER='(\d+)'/);if(m&&m[1]!==VER&&!sessionStorage.getItem('upd'+m[1])){sessionStorage.setItem('upd'+m[1],1);flush().finally(()=>location.replace(location.pathname+'?v='+m[1]))}}).catch(()=>{});
 /* запуск */
 applyState(FRESH());
