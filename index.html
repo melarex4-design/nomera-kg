@@ -170,6 +170,16 @@ select.inp{flex:none;width:auto;padding-right:8px}
 .new[hidden]{display:none}
 .accb{display:grid;gap:0;margin:16px 0}.accb .opt{background:var(--card)}
 .tp{cursor:pointer;text-align:left;width:100%}
+/* значки */
+.ttl{display:inline-block;width:max-content;max-width:100%;font-size:12px;font-weight:700;letter-spacing:.02em;color:var(--tc);border:1px solid color-mix(in srgb,var(--tc) 55%,transparent);background:color-mix(in srgb,var(--tc) 12%,transparent);border-radius:99px;padding:1px 9px;margin:3px 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acc-hd .ttl{display:block;font-size:13px}.tp .nm .ttl{display:block}
+.bdg{display:grid;gap:6px}
+.bdg button{background:var(--card);border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:2px 10px;text-align:left;align-items:center}
+.bdg button b{font-size:14px}.bdg button small{grid-column:1;color:var(--mut);font-size:12px}.bdg button i{grid-row:1/3;grid-column:2;font-style:normal;font-size:12px;font-weight:600;color:var(--mut)}
+.bdg button.on{box-shadow:inset 0 0 0 1.5px var(--ink)}.bdg button.on i{color:var(--green)}.bdg button.off{opacity:.5}
+.tcol{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--mut)}
+.tcol [data-c]{width:28px;height:28px;border-radius:50%;box-shadow:inset 0 0 0 2px #0006}.tcol [data-c].on{outline:2px solid var(--ink);outline-offset:2px}
+.tcol .offb{margin-left:auto;background:var(--card);border-radius:10px;padding:6px 12px;color:var(--ink)}
 /* нижнее меню */
 nav{position:fixed;bottom:0;left:0;right:0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:7;display:flex;justify-content:center}
 nav div{display:grid;grid-template-columns:repeat(5,1fr);width:100%;max-width:520px}
@@ -1156,6 +1166,7 @@ function rehydrate(st){st.col=(st.col||[]).filter(p=>p&&p.id);
     const b=st.col.slice().sort((a,b)=>b.price-a.price)[0];st.best=b?{lab:labelOf(b),price:b.price,tier:b.tier,id:b.id,it:packItem(b)}:null}st.season=3}
   if(!Array.isArray(st.ach))st.ach=[];
   /* подарки от разработчика: зачисляются один раз при входе игрока */
+  if(!st.cnt){st.cnt={};const S0=S;S=st;for(const p of st.col)countItem(p);S=S0}
   if(!Array.isArray(st.gifts))st.gifts=[];
   for(const p of st.col)if(p.m==='kcarbon'&&p.c==='col')p.c='';
   const nk=String(st.nick||(fb&&fb.auth.currentUser?mailNick(fb.auth.currentUser.email):'')).toLowerCase();
@@ -1267,7 +1278,27 @@ function reel(p,done){
       if(lock!==locked){locked=lock;big.classList.remove('lock');void pl.offsetWidth;big.classList.add('lock')}}
     requestAnimationFrame(fr)};requestAnimationFrame(fr);
 }
-function track(p){S.n++;if(!S.best||p.price>S.best.price)S.best={lab:labelOf(p),price:p.price,tier:p.tier,id:p.id,it:packItem(p)}}
+
+/* ===== значки под ником: копятся за выбитые предметы, у каждого 5 ступеней ===== */
+const ROM=['','I','II','III','IV','V'];
+const BADGES=[
+ ['find','Искатель','госномера с тремя одинаковыми цифрами (111, 777…)',p=>kindOf(p)==='plate'&&(p.fmt==='new'?/^(\d)\1\1$/.test(p.d):/^(\d)\1{3}$/.test(p.d)),[5,10,25,50,100]],
+ ['abc','Буквоед','госномера с одинаковыми буквами (AAA, BB…)',p=>kindOf(p)==='plate'&&/^(.)\1+$/.test(p.l),[5,10,25,50,100]],
+ ['hunt','Охотник','эпические и легендарные номера и симки',p=>!isCar(p)&&p.tier>=3,[3,10,25,50,100]],
+ ['nm','Именной','именные номера',p=>kindOf(p)==='name',[5,25,100,250,500]],
+ ['call','Каллиграф','именные номера от 150 000',p=>kindOf(p)==='name'&&p.price>=150000,[3,10,25,50,100]],
+ ['vip','Связист','сим-карты от 15 000',p=>isSim(p)&&p.price>=15000,[3,10,25,50,100]],
+ ['car','Автолюбитель','машины из контейнеров',isCar,[5,25,100,250,500]],
+ ['lux','Магнат','машины из жёлтого и чёрного контейнеров',p=>isCar(p)&&(p.b==='gold'||p.b==='black'),[3,10,25,50,100]],
+ ['hyp','Гиперкар','машины дороже 80 млн',p=>isCar(p)&&p.price>=80e6,[1,3,5,10,25]],
+ ['spin','Крутильщик','прокрутки',null,[100,1000,10000,50000,100000]]];
+const TCOL=['#f4f4f5','#ffc533','#3ddc84','#5b9dff','#b27cff','#ff6b9a','#ff7a3d','#e33b44'];
+const bCount=b=>b[3]?((S.cnt||{})[b[0]]||0):S.n;
+const bLevel=b=>{const c=bCount(b);let l=0;for(const t of b[4])if(c>=t)l++;return l};
+const badgeOf=id=>{const b=BADGES.find(x=>x[0]===id);if(!b)return null;const l=bLevel(b);return l?b[1]+' '+ROM[l]:null};
+const titleHTML=(t,c)=>t?`<span class="ttl" style="--tc:${/^#[0-9a-f]{6}$/i.test(c||'')?c:'#f4f4f5'}">${esc(t)}</span>`:'';
+function countItem(p){if(!S.cnt)S.cnt={};for(const b of BADGES)if(b[3]&&b[3](p))S.cnt[b[0]]=(S.cnt[b[0]]||0)+1}
+function track(p){S.n++;countItem(p);if(!S.best||p.price>S.best.price)S.best={lab:labelOf(p),price:p.price,tier:p.tier,id:p.id,it:packItem(p)}}
 /* сим-карты: примерно раз в 450 прокруток — симка 30 000–45 000 */
 const WIN_S=[[1/450,30000,45000]];
 function simIn(lo,hi){for(let i=0;i<5000;i++){const p=rawSim(),v=evalSim(p);if(v.price>=lo&&v.price<=hi)return Object.assign(p,v,{id:uid6(),t:Date.now(),tier:tierSim(v.price),c:''})}return makeSim()}
@@ -1492,17 +1523,22 @@ const safeVal=()=>S.col.reduce((a,c)=>a+c.price,0);
 const topItems=n=>S.col.slice().sort((a,b)=>b.price-a.price).slice(0,n);
 function drawAcc(){
   checkAch(true);const top=topItems(1)[0],val=safeVal(),bi=S.best&&S.best.it&&(!top||S.best.id!==top.id)?hydrate(S.best.it):null;
-  $('acc').innerHTML=`<div class="acc-hd"><div class="av">${esc((S.nick||'?').slice(0,1).toUpperCase())}</div><div><h1>${esc(S.nick||'Игрок')}</h1><span>Уровень ${S.lvl} из ${MAXL}</span></div></div>
+  $('acc').innerHTML=`<div class="acc-hd"><div class="av">${esc((S.nick||'?').slice(0,1).toUpperCase())}</div><div><h1>${esc(S.nick||'Игрок')}</h1>${titleHTML(badgeOf(S.title),S.tc)}<span>Уровень ${S.lvl} из ${MAXL}</span></div></div>
   <div class="kp"><div class="big1"><b>${num(S.n)}</b><span>прокруток всего</span></div><div><b>${short(S.bal)}</b><span>на балансе</span></div><div><b>${short(val)}</b><span>в сейфе · ${num(S.col.length)} шт</span></div>
   <div><b>${S.ach.length}/${ACH.length}</b><span>достижений</span></div><div><b>${S.col.filter(isCar).length}</b><span>машин</span></div></div>
   <h2>Самое дорогое у вас</h2>${top?`<button class="acc-best" data-id="${top.id}"><div class="pw">${itemHTML(top)}</div><div class="meta"><b>${fmt(top.price)}</b>${pill(top.tier)}</div></button>`:'<div class="empty">Пока пусто — начните крутить</div>'}
   ${bi?`<h2>Лучшая находка за всё время</h2><div class="acc-best"><div class="pw">${itemHTML(bi)}</div><div class="meta"><b>${fmt(bi.price)}</b>${pill(bi.tier)}</div></div>`:''}
+  <h2>Значки · видны всем под ником</h2><div class="bdg">${BADGES.map(b=>{const l=bLevel(b),c=bCount(b),nx=b[4][l];return `<button data-b="${b[0]}" class="${S.title===b[0]?'on':''} ${l?'':'off'}"><b>${b[1]} ${l?ROM[l]:''}</b><small>${b[2]}: ${num(c)}${nx?' / '+num(nx)+' до '+ROM[l+1]:' · максимум'}</small><i>${l?(S.title===b[0]?'надет':'надеть'):'🔒'}</i></button>`}).join('')}</div>
+  ${S.title&&badgeOf(S.title)?`<div class="tcol"><span>Цвет значка</span>${TCOL.map(c=>`<button data-c="${c}" style="background:${c}" class="${(S.tc||TCOL[0])===c?'on':''}" aria-label="цвет"></button>`).join('')}<button data-off="1" class="offb">Снять</button></div>`:''}
   <h2>Достижения · ${S.ach.length} из ${ACH.length}</h2><div class="ach">${ACH.map(([id,t,d])=>`<div class="${S.ach.includes(id)?'ok':''}">${t}<small>${d}</small></div>`).join('')}</div>
   <div class="accb"><button class="opt" id="pPlay">Крутить<span>›</span></button><button class="opt" id="pRules">Как считается цена<span>›</span></button><button class="opt" id="pPass">Сменить пароль<span>›</span></button>
   <div class="new" id="pPassBox" hidden><input class="inp" id="pNew" type="password" placeholder="Новый пароль" autocomplete="new-password"><button id="pPassGo">ОК</button></div>
   <button class="opt danger" id="pOut">Выйти из аккаунта<span></span></button></div><p class="hint" style="text-align:center;margin:0 0 20px">Версия игры ${VER}</p>`;
 }
 $('acc').addEventListener('click',async e=>{
+  const bb=e.target.closest('.bdg [data-b]');if(bb){const b=BADGES.find(x=>x[0]===bb.dataset.b);if(!bLevel(b)){toast('Ещё не открыт: '+b[2]+' — '+num(bCount(b))+' из '+num(b[4][0]));return}S.title=b[0];if(!S.tc)S.tc=TCOL[0];save();drawAcc();toast('Значок «'+badgeOf(b[0])+'» под ником');return}
+  const cc=e.target.closest('.tcol [data-c]');if(cc){S.tc=cc.dataset.c;save();drawAcc();return}
+  if(e.target.closest('.tcol [data-off]')){S.title='';save();drawAcc();return}
   const b=e.target.closest('.acc-best[data-id]');if(b){openDetail(b.dataset.id);return}
   if(e.target.closest('#pPlay'))go('spin');
   if(e.target.closest('#pRules'))rulesSheet();
@@ -1516,7 +1552,7 @@ $('acc').addEventListener('click',async e=>{
 function profileSheet(r){
   const its=(r.top||[]).map(q=>{try{return hydrate(q)}catch(e){return null}}).filter(p=>p&&p.price),bi=r.bi?hydrate(r.bi):null;
   const mini=p=>`<div class="mini" style="--rc:${rc(p.tier)}"><div class="pw">${itemHTML(p)}</div><div class="v"><span>${fmt(p.price)}</span><i></i></div></div>`;
-  openSheet(`<div class="acc-hd" style="padding-top:0"><div class="av">${esc((r.nick||'?').slice(0,1).toUpperCase())}</div><div><h1>${esc(r.nick||'Игрок')}</h1><span>Уровень ${r.lvl||1}${r.id===uid?' · это вы':''}</span></div></div>
+  openSheet(`<div class="acc-hd" style="padding-top:0"><div class="av">${esc((r.nick||'?').slice(0,1).toUpperCase())}</div><div><h1>${esc(r.nick||'Игрок')}</h1>${titleHTML(r.tt,r.tc)}<span>Уровень ${r.lvl||1}${r.id===uid?' · это вы':''}</span></div></div>
   <div class="kp"><div class="big1"><b>${num(r.n||0)}</b><span>прокруток</span></div><div><b>${short(r.bal||0)}</b><span>на балансе</span></div><div><b>${short(r.val||0)}</b><span>в сейфе</span></div><div><b>${r.ach||0}/${ACH.length}</b><span>достижений</span></div><div><b>${num(r.rich||0)}</b><span>дороже 50 000</span></div></div>
   ${bi?`<h4>Лучшая находка</h4><div class="pw">${itemHTML(bi)}</div><p><b>${fmt(bi.price)}</b> · ${RAR[bi.tier][0]}</p>`:''}
   ${its.length?`<h4>Самое дорогое в сейфе</h4><div class="grid2">${its.map(mini).join('')}</div>`:''}<button class="cancel">Закрыть</button>`);
@@ -1568,7 +1604,7 @@ async function flush(){
 const bestOf=f=>S.col.filter(f).reduce((a,c)=>!a||c.price>a.price?c:a,null);
 const KINDS={pl:c=>kindOf(c)==='plate',nm:c=>kindOf(c)==='name',sm:isSim,cr:isCar};
 const kindTop=()=>{const o={};for(const k in KINDS){const b=bestOf(KINDS[k]);o[k]=b?b.price:0;o[k+'i']=b?packItem(b):null}return o};
-const boardData=()=>({...kindTop(),nick:S.nick||'',bal:Math.round(S.bal),best:S.best?S.best.price:0,bestLab:S.best?S.best.lab:'',rich:S.col.filter(c=>c.price>=50000).length,lvl:S.lvl,n:S.n||0,season:3,val:Math.round(safeVal()),ach:S.ach.length,top:topItems(6).map(packItem),bi:S.best&&S.best.it||null,updated:firebase.firestore.FieldValue.serverTimestamp()});
+const boardData=()=>({...kindTop(),tt:badgeOf(S.title)||'',tc:S.tc||'',nick:S.nick||'',bal:Math.round(S.bal),best:S.best?S.best.price:0,bestLab:S.best?S.best.lab:'',rich:S.col.filter(c=>c.price>=50000).length,lvl:S.lvl,n:S.n||0,season:3,val:Math.round(safeVal()),ach:S.ach.length,top:topItems(6).map(packItem),bi:S.best&&S.best.it||null,updated:firebase.firestore.FieldValue.serverTimestamp()});
 const TOPK={pl:'Самый дорогой госномер у игрока',nm:'Самый дорогой именной номер',sm:'Самая дорогая сим-карта',cr:'Самая дорогая машина в гараже',n:'Сколько всего прокруток',bal:'Деньги на балансе',best:'Самый дорогой номер или сим-карта, выпавшие игроку',rich:'Сколько в сейфе номеров и сим-карт дороже 50 000 сом'};
 let topKind='bal',topCache={};
 async function drawTop(force){
@@ -1589,7 +1625,7 @@ function itemFromLab(lab,price){let m;
 function topPlate(r,k){const q=KINDS[k]?r[k+'i']:r.bi;let it=null;try{it=q?hydrate(q):k==='best'&&r.bestLab?itemFromLab(r.bestLab,r.best):null}catch(e){}return it?`<div class="pw tpw">${itemHTML(it)}</div>`:''}
 function renderTop(){
   const k=topKind,rows=topCache[k].rows;
-  $('topList').innerHTML=rows.length?rows.map((r,i)=>`<div class="tp ${r.id===uid?'mine':''}" data-i="${i}"><span class="n">${i<3?['🥇','🥈','🥉'][i]:i+1}</span><div class="nm">${esc(r.nick||'Игрок')}${r.id===uid?' (вы)':''}<small>Уровень ${r.lvl||1}</small>${KINDS[k]||k==='best'?topPlate(r,k):''}</div><b>${k==='rich'?num(r.rich||0)+' шт':k==='n'?num(r.n||0):fmt(r[k]||0)}</b></div>`).join(''):'<div class="empty">Пока никого нет</div>';
+  $('topList').innerHTML=rows.length?rows.map((r,i)=>`<div class="tp ${r.id===uid?'mine':''}" data-i="${i}"><span class="n">${i<3?['🥇','🥈','🥉'][i]:i+1}</span><div class="nm">${esc(r.nick||'Игрок')}${r.id===uid?' (вы)':''}${titleHTML(r.tt,r.tc)}<small>Уровень ${r.lvl||1}</small>${KINDS[k]||k==='best'?topPlate(r,k):''}</div><b>${k==='rich'?num(r.rich||0)+' шт':k==='n'?num(r.n||0):fmt(r[k]||0)}</b></div>`).join(''):'<div class="empty">Пока никого нет</div>';
 }
 $('topKind').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;topKind=b.dataset.t;for(const x of $('topKind').children)x.classList.toggle('on',x===b);drawTop()});
 $('topRef').addEventListener('click',()=>drawTop(true));
@@ -1623,7 +1659,7 @@ $('meBtn').addEventListener('click',()=>go('acc'));
 $('aCode').addEventListener('input',()=>{if(tab==='up')$('aGo').textContent=$('aCode').value.trim()?'Создать аккаунт с прогрессом':'Создать аккаунт'});
 
 /* автообновление: телефон держит старую страницу в кэше до 10 минут — проверяем версию на сервере */
-const VER='36';
+const VER='37';
 fetch(location.pathname+'?nocache='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(h=>{const m=h.match(/const VER='(\d+)'/);if(m&&m[1]!==VER&&!sessionStorage.getItem('upd'+m[1])){sessionStorage.setItem('upd'+m[1],1);flush().finally(()=>location.replace(location.pathname+'?v='+m[1]+'&t='+Date.now()))}}).catch(()=>{});
 /* запуск */
 applyState(FRESH());
