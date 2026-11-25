@@ -392,7 +392,10 @@ function rawPlate(old){
   const l=q<LUCK_SAME?c+c+c:q<LUCK_SAME+LUCK_WORD?pick(W3):(Math.random()<P_A?'A':pick(LET_NA))+pick(LET)+pick(LET);
   return {fmt:'new',r:rollRegion(),d:Math.random()<LUCK_DIG?pick(SPECIAL):String(Math.floor(Math.random()*1e3)).padStart(3,'0'),l};
 }
-const evalPlate=p=>p.fmt==='old'?valueOld(p.r,p.d,p.l):valueNew(p.r,p.d,p.l);
+/* именные номера: выдаются лично, в прокрутке не выпадают */
+const NAMED={SAYAN:2620000};
+const valueName=(r,l)=>({f:['Именной номер','Единственный в игре'],off:0,note:'Именной номер — выдан лично, в прокрутке не выпадает',price:NAMED[l]||1000000});
+const evalPlate=p=>p.fmt==='name'?valueName(p.r,p.l):p.fmt==='old'?valueOld(p.r,p.d,p.l):valueNew(p.r,p.d,p.l);
 /* чем дороже номер, тем реже выпадает (цены от этого не меняются) */
 const ALPHA=.7,FLOOR=1500,LUCK_DIG=.1,LUCK_SAME=.015,LUCK_WORD=.05,LUCK_OLD=.08;
 const uid6=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
@@ -472,8 +475,8 @@ const evalAny=p=>isSim(p)?evalSim(p):evalPlate(p);
 const tierAny=p=>isSim(p)?tierSim(p.price):tierOf(p.price);
 const code=p=>isSim(p)?'z'+p.op:p.fmt==='old'?OLD[p.r][0]:p.r;
 const placeOf=p=>isSim(p)?OPS[p.op].n+' · '+OPS[p.op].cat[p.cat||0]:REG[code(p)]+(p.fmt==='old'?' · старый формат':'');
-const keyStr=c=>isSim(c)?c.pre+c.s:c.r+c.d+c.l;
-const labelOf=p=>isSim(p)?p.pre+' '+p.s.slice(0,3)+' '+p.s.slice(3):(p.fmt==='old'?p.r+' '+p.d+' '+p.l:p.r+' '+p.d+' '+p.l);
+const keyStr=c=>isSim(c)?c.pre+c.s:c.r+(c.d||'')+c.l;
+const labelOf=p=>isSim(p)?p.pre+' '+p.s.slice(0,3)+' '+p.s.slice(3):(p.fmt==='name'?p.r+' '+p.l:p.r+' '+p.d+' '+p.l);
 
 /* ===== уровни ===== */
 /* 2 уровень — 70 000 на балансе, каждый следующий шаг на 10 000 больше предыдущего; бонус 5 000 × (уровень − 1) */
@@ -512,7 +515,8 @@ addEventListener('pagehide',()=>flush());document.addEventListener('visibilitych
 const LW={W:.86,M:.76,I:.27,J:.46,L:.5,F:.52,E:.54,T:.56,S:.56,Z:.55,P:.58,R:.6,B:.6,K:.62,C:.6,A:.64,V:.62,X:.62,Y:.6,O:.66,G:.65,D:.64,H:.66,N:.66,U:.64,Q:.66};
 const fitL=(l,fs,max)=>{const w=[...l].reduce((s,c)=>s+(LW[c]||.62),0)*fs;return w>max?` textLength="${max}" lengthAdjust="spacingAndGlyphs"`:''};
 const PLATE_BOX='<rect x="2" y="2" width="516" height="108" rx="12" fill="#fff" stroke="#111" stroke-width="3"/><rect x="9" y="9" width="502" height="94" rx="7" fill="none" stroke="#111" stroke-width="2.5"/>';
-const plateHTML=p=>p.fmt==='old'
+const namedHTML=p=>`<svg class="plate" viewBox="0 0 520 112">${PLATE_BOX}<line x1="112" y1="9" x2="112" y2="103" stroke="#111" stroke-width="2.5"/><text x="61" y="58" font-size="54" text-anchor="middle">${p.r}</text><use href="#kgf" x="20" y="69" width="36" height="24"/><text x="83" y="91" font-size="27" text-anchor="middle" font-weight="600">KG</text><text x="311" y="89" font-size="88" text-anchor="middle"${fitL(p.l,88,370)}>${p.l}</text></svg>`;
+const plateHTML=p=>p.fmt==='name'?namedHTML(p):p.fmt==='old'
   ?`<svg class="plate" viewBox="0 0 520 112">${PLATE_BOX}<use href="#kgf" x="22" y="42" width="42" height="28"/><text data-s x="150" y="81" font-size="70" text-anchor="middle">${p.r}</text><text data-s x="300" y="81" font-size="70" text-anchor="middle" letter-spacing="2">${p.d}</text><text data-s x="446" y="81" font-size="70" text-anchor="middle" letter-spacing="2"${fitL(p.l,70,90)}>${p.l}</text></svg>`
   :`<svg class="plate" viewBox="0 0 520 112">${PLATE_BOX}<line x1="112" y1="9" x2="112" y2="103" stroke="#111" stroke-width="2.5"/><text data-s x="61" y="58" font-size="54" text-anchor="middle">${p.r}</text><use href="#kgf" x="20" y="69" width="36" height="24"/><text x="83" y="91" font-size="27" text-anchor="middle" font-weight="600">KG</text><text data-s x="318" y="91" font-size="100" text-anchor="end">${p.d}</text><text data-s x="334" y="91" font-size="74"${fitL(p.l,74,166)}>${p.l}</text></svg>`;
 const simHTML=p=>`<div class="sim" style="--op:${OPS[p.op].bg};--opi:${OPS[p.op].ink}"><div class="chip"></div><div class="r"><div class="st"><b>${OPS[p.op].n}</b>${p.cat?`<span>${OPS[p.op].cat[p.cat]}</span>`:''}</div><div class="sn"><i>${p.pre}</i> ${p.s.slice(0,3)} ${p.s.slice(3)}</div></div></div>`;
@@ -841,6 +845,7 @@ async function drawTop(force){
   catch(e){$('topList').innerHTML='<div class="empty">Не удалось загрузить рейтинг. Проверьте интернет.</div>'}
 }
 function itemFromLab(lab,price){let m;
+  if(m=/^(\d{2}) ([A-Z]{4,9})$/.exec(lab))return {fmt:'name',r:m[1],l:m[2]};
   if(m=/^(\d{2}) (\d{3}) ([A-Z]{3})$/.exec(lab))return {fmt:'new',r:m[1],d:m[2],l:m[3]};
   if(m=/^([A-Z]) (\d{4}) ([A-Z]{2})$/.exec(lab))return OLD[m[1]]?{fmt:'old',r:m[1],d:m[2],l:m[3]}:null;
   if(m=/^(0\d{3}) (\d{3}) (\d{3})$/.exec(lab)){const op=Object.keys(OPS).find(k=>OPS[k].pre.includes(m[1]))||'o';return {kind:'sim',op,pre:m[1],s:m[2]+m[3],cat:simCat(price||0)}}
