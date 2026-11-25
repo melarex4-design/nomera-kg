@@ -1121,7 +1121,7 @@ const hydrate=q=>{const p={...q},v=evalAny(p);Object.assign(p,v);if(isSim(p))p.c
 const lvNeed=n=>n<=1?0:n<=50?70000+10000*(n-2)*(n-1)/2:Math.round(11830000*Math.pow(1.03,n-50)/1000)*1000;
 const lvBonus=n=>n<=50?5000*(n-1):Math.round(lvNeed(n)*.01/1000)*1000;
 const UNLOCK={5:'Прокрутка ×25',10:'Ва-банк',20:'Именные номера',40:'Машины'};
-const MODE_LVL={name:20,car:40};
+const MODE_LVL={name:20,car:40},NO_ALLIN=['plate','name'];
 const MAXL=200;
 const levelFor=b=>{let n=1;while(n<MAXL&&b>=lvNeed(n+1))n++;return n};
 
@@ -1183,7 +1183,7 @@ function drawButtons(){
   $('spin').disabled=poor||spinning;$('spinV').textContent=fmt(C);
   $('spin10').disabled=S.bal<C*10||spinning;$('spin10V').textContent=short(C*10)+' с';
   const l25=S.lvl<5,b25=$('spin25');b25.classList.toggle('locked',l25);b25.disabled=!l25&&(S.bal<C*25||spinning);$('spin25V').textContent=l25?'🔒 с 5 уровня':short(C*25)+' с';
-  const n=Math.floor(S.bal/C),lA=S.lvl<10,ba=$('allin');ba.classList.toggle('locked',lA);ba.disabled=!lA&&(n<1||spinning);$('allinV').textContent=lA?'🔒 с 10 уровня':n>0?n+' шт':'—';
+  const n=Math.floor(S.bal/C),noA=NO_ALLIN.includes(S.mode),lA=S.lvl<10||noA,ba=$('allin');ba.classList.toggle('locked',lA);ba.disabled=!lA&&(n<1||spinning);$('allinV').textContent=noA?'🔒 не для номеров':S.lvl<10?'🔒 с 10 уровня':n>0?n+' шт':'—';
   $('broke').hidden=!poor||spinning;
   const pv=false;$('pity').hidden=true;
   if(pv){const t=S.pt||65,left=Math.max(1,t-(S.pity||0));$('pity').innerHTML=`<span>Дорогой номер (от ${short(PITY_MIN)}) гарантирован через <b>${left}</b> ${left%10===1&&left%100!==11?'прокрутку':left%10>=2&&left%10<=4&&(left%100<10||left%100>=20)?'прокрутки':'прокруток'}</span><span class="bar"><i style="width:${Math.min(100,(S.pity||0)/t*100).toFixed(1)}%"></i></span>`}
@@ -1312,6 +1312,7 @@ $('spin').addEventListener('click',spinOnce);
 $('spin10').addEventListener('click',()=>multiSpin(10,'10 прокруток'));
 $('spin25').addEventListener('click',()=>{if(S.lvl<5){toast('×25 откроется на 5 уровне — '+fmt(lvNeed(5))+' на балансе');return}multiSpin(25,'25 прокруток')});
 $('allin').addEventListener('click',()=>{
+  if(NO_ALLIN.includes(S.mode)){toast('Ва-банк есть только для сим-карт и машин');return}
   if(S.lvl<10){toast('Ва-банк откроется на 10 уровне — '+fmt(lvNeed(10))+' на балансе');return}
   const C=cost(),n=Math.floor(S.bal/C);if(spinning||n<1)return;
   if(!confirmTap('allin',`Ва-банк на все деньги: ${num(n)} прокруток за ${fmt(n*C)}. Нажмите ещё раз`)){$('allin').classList.add('arm');setTimeout(()=>$('allin').classList.remove('arm'),3000);return}
@@ -1610,7 +1611,7 @@ $('meBtn').addEventListener('click',()=>go('acc'));
 $('aCode').addEventListener('input',()=>{if(tab==='up')$('aGo').textContent=$('aCode').value.trim()?'Создать аккаунт с прогрессом':'Создать аккаунт'});
 
 /* автообновление: телефон держит старую страницу в кэше до 10 минут — проверяем версию на сервере */
-const VER='16';
+const VER='17';
 fetch(location.pathname+'?nocache='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(h=>{const m=h.match(/const VER='(\d+)'/);if(m&&m[1]!==VER&&!sessionStorage.getItem('upd'+m[1])){sessionStorage.setItem('upd'+m[1],1);flush().finally(()=>location.replace(location.pathname+'?v='+m[1]))}}).catch(()=>{});
 /* запуск */
 applyState(FRESH());
