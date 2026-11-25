@@ -142,9 +142,37 @@ select.inp{flex:none;width:auto;padding-right:8px}
 .r2{display:grid;grid-template-columns:1fr auto;gap:8px}.r2[hidden]{display:none}.sum .selbtn{background:var(--card2);min-height:48px}.sum .selbtn.on{background:var(--ink);color:var(--bg)}
 .tpw{max-width:190px;margin-top:8px}
 .unl{display:inline-block;background:var(--card2);color:var(--ink);border-radius:6px;padding:1px 6px;font-size:11px;font-weight:600;margin-left:6px}
+/* машины и контейнеры */
+.car,.box{display:block;width:100%;height:auto}
+.car text{font-family:Inter,system-ui,sans-serif}
+.boxes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}.boxes[hidden]{display:none}
+.boxes button{background:var(--card);border-radius:14px;padding:8px 6px 10px;display:grid;gap:4px;justify-items:center;font-weight:600;font-size:14px;box-shadow:inset 0 0 0 2px transparent}
+.boxes button small{color:var(--mut);font-weight:600;font-size:12px;font-variant-numeric:tabular-nums}
+.boxes button.on{box-shadow:inset 0 0 0 2px var(--ink)}
+.box .dl,.box .dr{transition:transform .55s cubic-bezier(.5,0,.2,1)}.box .dl{transform-origin:46px 0}.box .dr{transform-origin:474px 0}
+.box.open .dl,.box.open .dr{transform:scaleX(.06)}
+.shake .box{animation:shk .5s ease-in-out}@keyframes shk{20%{transform:translateX(-4px) rotate(-.6deg)}40%{transform:translateX(4px) rotate(.6deg)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+.pity{background:var(--card);border-radius:12px;padding:9px 12px;display:grid;gap:6px;font-size:13px;color:var(--mut);margin-top:10px}.pity[hidden]{display:none}
+.pity b{color:var(--ink);font-weight:600}.pity .bar i{background:var(--c3)}
+/* аккаунт */
+.acc-hd{display:flex;align-items:center;gap:14px;padding:16px 0 6px}
+.av{width:60px;height:60px;border-radius:18px;background:var(--red);color:#fff;display:grid;place-items:center;font-size:26px;font-weight:700;flex:none}
+.acc-hd h1{margin:0;font-size:24px;letter-spacing:-.02em;line-height:1.2;overflow:hidden;text-overflow:ellipsis}.acc-hd span{color:var(--mut);font-size:14px}
+.kp{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.kp div{background:var(--card);border-radius:14px;padding:12px 14px;display:grid;gap:2px}
+.kp b{font-size:22px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.kp span{font-size:13px;color:var(--mut)}
+.sheet .kp div{background:var(--card2)}.kp .big1{grid-column:1/-1}.kp .big1 b{font-size:32px}
+.acc-best{background:var(--card);border-radius:16px;padding:12px;display:grid;gap:10px;width:100%;text-align:left}
+.acc-best .meta{display:flex;justify-content:space-between;align-items:center;gap:10px}.acc-best .meta b{font-size:18px}
+.ach{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ach div{background:var(--card);border-radius:12px;padding:10px;font-size:13px;font-weight:600;display:grid;gap:2px;opacity:.45}
+.ach div small{color:var(--mut);font-weight:500;font-size:12px}.ach div.ok{opacity:1;box-shadow:inset 0 0 0 1px #4fb37e}.ach div.ok::before{content:"✓ ";color:var(--green)}
+.new[hidden]{display:none}
+.accb{display:grid;gap:0;margin:16px 0}.accb .opt{background:var(--card)}
+.tp{cursor:pointer;text-align:left;width:100%}
 /* нижнее меню */
 nav{position:fixed;bottom:0;left:0;right:0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:7;display:flex;justify-content:center}
-nav div{display:grid;grid-template-columns:repeat(4,1fr);width:100%;max-width:520px}
+nav div{display:grid;grid-template-columns:repeat(5,1fr);width:100%;max-width:520px}
 nav button{min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:500;color:#5d5d66}
 nav button svg{width:23px;height:23px}
 nav button.on{color:var(--ink)}
@@ -200,8 +228,12 @@ nav button.on{color:var(--ink)}
   <button class="me" id="meBtn" aria-label="Профиль">?</button>
 </header>
 
-<section class="view on" id="v-spin">
-  <div class="seg" id="modes"><button data-m="plate" class="on">Госномера</button><button data-m="sim">Сим-карты</button></div>
+<section class="view on" id="v-acc"><div id="acc"></div></section>
+
+<section class="view" id="v-spin">
+  <div class="seg" id="modes"><button data-m="plate" class="on">Номера</button><button data-m="name">Именные</button><button data-m="sim">Сим</button><button data-m="car">Машины</button></div>
+  <div class="boxes" id="boxes" hidden></div>
+  <div class="pity" id="pity" hidden></div>
   <div class="stage" id="stage">
     <div class="big"><div class="pw" id="big"></div></div>
     <div class="res" id="res"></div>
@@ -228,7 +260,7 @@ nav button.on{color:var(--ink)}
 </section>
 
 <section class="view" id="v-top">
-  <div class="seg" id="topKind" style="margin-top:14px"><button data-t="bal" class="on">Баланс</button><button data-t="best">Лучший номер</button><button data-t="rich">Дорогие</button></div>
+  <div class="seg" id="topKind" style="margin-top:14px"><button data-t="bal" class="on">Баланс</button><button data-t="best">Лучший номер</button><button data-t="rich">Дорогие</button><button data-t="n">Прокрутки</button></div>
   <div class="tophd"><span class="hint" id="topHint"></span><button class="selbtn" id="topRef">Обновить</button></div>
   <div class="list" id="topList"></div>
 </section>
@@ -242,7 +274,8 @@ nav button.on{color:var(--ink)}
 <div class="selbar" id="selbar" hidden><div><button id="selAll">Все</button><button id="toCol" disabled>В коллекцию</button><button class="red" id="sellSel" disabled>Продать</button></div></div>
 
 <nav><div>
-  <button data-v="spin" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="10" rx="2"/><path d="M6 10v4M10 12h9"/></svg>Крутить</button>
+  <button data-v="acc" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4.3-6.5 8-6.5s7 2 8 6.5"/></svg>Аккаунт</button>
+  <button data-v="spin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="10" rx="2"/><path d="M6 10v4M10 12h9"/></svg>Крутить</button>
   <button data-v="safe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="12" cy="12" r="3.5"/><path d="M12 8.5v-1M15.5 12h1"/></svg>Сейф</button>
   <button data-v="lvl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V14M10 20V9M16 20V4M2 20h20"/></svg>Уровни</button>
   <button data-v="top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"/></svg>Топ</button>
@@ -288,7 +321,7 @@ const RW={'01':26,'02':10,'03':6,'04':12,'05':4,'06':12,'07':4,'08':16,'09':10};
 /* какая доля рыночной надбавки достаётся региону: в Бишкеке торги самые дорогие */
 const RF={'00':1,'01':1,'08':.85,'02':.75,'09':.7,'04':.6,'06':.6,'03':.45,'05':.45,'07':.45};
 const OLD={B:['01',18,1],E:['01',5,1],F:['01',3,1],Z:['02',8,.75],A:['03',5,.45],D:['04',10,.6],N:['05',3,.45],H:['05',2,.45],O:['06',10,.6],T:['07',4,.45],C:['08',10,.85],S:['08',5,.85],I:['09',9,.7]};
-const START=100000,COST=2000,USD=87.45,NEW_CAP=2620000,OLD_CAP=8740000,OLD_CHANCE=.3,ALLIN_MAX=500;
+const START=50000,COST=2600,USD=87.45,NEW_CAP=2620000,OLD_CAP=8740000,OLD_CHANCE=.3,ALLIN_MAX=500;
 const LET='ABCDEFGHIJKLMNOPRSTUVWXYZ',P_A=.6,LET_NA=LET.slice(1);
 const OLD_SER=['BB','BM','BK','BC','BS'];
 const WORDS=['AMG','BMW','VIP','ATA','NEO','MMA','KGZ','BOS','TOP','CEO','ACE','PRO','JET','LEX','SUN','BAR','DOC','CAR','GOV','GMC','SPR','CRV','DOS','SOS','MER','BOSS','RAV','KIA','AUD','TOY','LUX','MAN','GTR','RS6','ZIL','UAZ','VAZ','EGO','WIN','BIG','BOY','ART','ONE'];
@@ -394,7 +427,6 @@ function rawPlate(old){
 }
 /* именные номера: выдаются лично, в прокрутке не выпадают */
 const NAMED={SAYAN:2620000};
-const valueName=(r,l)=>({f:['Именной номер','Единственный в игре'],off:0,note:'Именной номер — выдан лично, в прокрутке не выпадает',price:NAMED[l]||1000000});
 const evalPlate=p=>p.fmt==='name'?valueName(p.r,p.l):p.fmt==='old'?valueOld(p.r,p.d,p.l):valueNew(p.r,p.d,p.l);
 /* чем дороже номер, тем реже выпадает (цены от этого не меняются) */
 const ALPHA=.7,FLOOR=1500,LUCK_DIG=.1,LUCK_SAME=.015,LUCK_WORD=.05,LUCK_OLD=.08;
@@ -470,13 +502,115 @@ function makeSim(){let p,v;
   if(Math.random()<JACK)[p,v]=jackSim();
   else for(let i=0;i<80;i++){p=rawSim();v=evalSim(p);if(v.price>=JMIN)continue;if(v.price<=SFLOOR||Math.random()<Math.pow(SFLOOR/v.price,SALPHA))break}
   return Object.assign(p,v,{id:uid6(),t:Date.now(),tier:tierSim(v.price),c:''})}
+/* ===== машины в контейнерах ===== */
+/* цены — по объявлениям lalafo.kg и mashina.kg (ноябрь 2026), в долларах за самый старый и самый новый год; год влияет на цену */
+const CARS={
+ vaz:['ВАЗ 2107','classic',1995,2010,1500,3000],matiz:['Daewoo Matiz','hatch',2005,2015,2500,4500],fit:['Honda Fit','hatch',2002,2008,3000,5000],
+ vectra:['Opel Vectra','sedan',1996,2002,2500,3800],e39:['BMW 5 E39','sedan',1996,2003,4000,7000],w210:['Mercedes E W210','sedan',1996,2002,4000,6500],
+ camry20:['Toyota Camry 20','sedan',1997,2001,4000,7500],camry40:['Toyota Camry 40','sedan',2007,2011,8000,10000],lx470:['Lexus LX 470','suv',2002,2007,18000,27000],
+ accord:['Honda Accord','sedan',2008,2012,9000,12000],elantra:['Hyundai Elantra','sedan',2016,2020,10000,14000],camry55:['Toyota Camry 55','sedan',2015,2017,12500,17000],
+ e212:['Mercedes E W212','sedan',2010,2016,14000,21000],f10:['BMW 5 F10','sedan',2011,2016,16000,21000],sonata:['Hyundai Sonata','sedan',2019,2023,15000,21000],
+ camry70:['Toyota Camry 70','sedan',2018,2023,15500,25000],k5:['Kia K5','sedan',2020,2024,16000,22000],es:['Lexus ES','sedan',2017,2021,18000,28000],
+ rx:['Lexus RX','suv',2009,2015,19000,28000],x5:['BMW X5','suv',2014,2018,25000,35000],prado:['Toyota Prado 150','box',2010,2017,25000,38000],
+ m5f90:['BMW M5 F90','sport',2018,2023,60000,89000],lx570:['Lexus LX 570','box',2016,2021,75000,105000],
+ palisade:['Hyundai Palisade','suv',2020,2024,35000,48000],rx350:['Lexus RX 350','suv',2020,2023,45000,60000],x7:['BMW X7','suv',2019,2024,60000,110000],
+ cayenne:['Porsche Cayenne','suv',2018,2024,50000,100000],lc300:['Toyota Land Cruiser 300','box',2021,2025,75000,100000],gx550:['Lexus GX 550','box',2024,2026,90000,100000],
+ rr:['Range Rover','box',2018,2024,70000,160000],s223:['Mercedes S-Class','sedan',2021,2025,90000,150000],lx600:['Lexus LX 600','box',2022,2026,135000,180000],
+ m5g90:['BMW M5 G90','sport',2025,2026,150000,187000],g63:['Mercedes G 63 AMG','gwag',2019,2025,140000,220000],urus:['Lamborghini Urus','suv',2019,2025,220000,320000],
+ cullinan:['Rolls-Royce Cullinan','box',2019,2025,300000,450000]};
+/* контейнеры: модель и её частота */
+const BOXES={
+ blue:{n:'Синий',c:'#2d63b8',d:'#1f4a8c',cost:0,pool:{vaz:30,matiz:26,fit:20,vectra:20,e39:12,w210:12,camry20:10,camry40:3,lx470:.5}},
+ red:{n:'Красный',c:'#b8373f',d:'#8e252c',cost:0,pool:{accord:20,elantra:20,camry55:18,e212:14,f10:14,sonata:14,camry70:14,k5:12,es:10,rx:8,x5:5,prado:5,m5f90:.7,lx570:.45}},
+ gold:{n:'Жёлтый',c:'#d9a521',d:'#a87c12',cost:0,pool:{palisade:20,rx350:18,x7:14,cayenne:14,lc300:12,gx550:8,rr:8,s223:7,lx600:5,m5g90:4,g63:4,urus:1,cullinan:.5}}};
+const CLR=[['Белый','#ececef'],['Чёрный','#1c1d22'],['Серебристый','#a9afb7'],['Серый','#5d636c'],['Синий','#2554a6'],['Красный','#b3202a'],['Зелёный','#2a6a4a'],['Бежевый','#c9b48a'],['Жёлтый','#e0b020'],['Оранжевый','#d8651f']];
+const CLR_W=[22,24,16,14,8,6,3,4,1.5,1.5];
+const isCar=p=>p.kind==='car';
+const carPrice=(m,y)=>{const c=CARS[m];if(!c)return 0;const k=c[3]>c[2]?(y-c[2])/(c[3]-c[2]):1;return Math.round((c[4]+(c[5]-c[4])*Math.max(0,Math.min(1,k)))*USD/1000)*1000};
+/* редкость машины считается относительно цены контейнера, из которого она выпала */
+const tierCar=p=>{const C=(BOXES[p.b]||BOXES.blue).cost,r=p.price/C;return r>=4?4:r>=2?3:r>=1.3?2:r>=.9?1:0};
+const BODY_N={classic:'Седан',hatch:'Хэтчбек',sedan:'Седан',suv:'Кроссовер',box:'Внедорожник',gwag:'Внедорожник',sport:'Спорт'};
+function evalCar(p){const c=CARS[p.m]||CARS.vaz,price=carPrice(p.m,p.y);
+  return {price,f:[BODY_N[c[1]],p.y+' г.',(CLR[p.k]||CLR[0])[0]],note:`${c[0]} ${p.y} г. — средняя цена по объявлениям lalafo.kg и mashina.kg: ≈ $${num(price/USD)}`,off:0}}
+const wpick=o=>{const e=Object.entries(o),t=e.reduce((s,x)=>s+x[1],0);let r=Math.random()*t;for(const [k,w] of e){r-=w;if(r<0)return k}return e[0][0]};
+function makeCar(b){const m=wpick(BOXES[b].pool),c=CARS[m],y=c[2]+Math.floor(Math.random()*(c[3]-c[2]+1));
+  const k=+wpick(Object.fromEntries(CLR_W.map((w,i)=>[i,w])));const p={kind:'car',m,y,k,b};const v=evalCar(p);
+  Object.assign(p,v,{id:uid6(),t:Date.now(),c:''});p.tier=tierCar(p);return p}
+/* цена контейнера = средняя стоимость машины / 0,95 (в среднем чуть в минус, выигрыш — на редкой машине) */
+for(const b in BOXES){const pl=BOXES[b].pool,t=Object.values(pl).reduce((s,w)=>s+w,0);let ev=0;
+  for(const [m,w] of Object.entries(pl)){const c=CARS[m];let a=0;for(let y=c[2];y<=c[3];y++)a+=carPrice(m,y);ev+=w/t*a/(c[3]-c[2]+1)}
+  BOXES[b].ev=ev;BOXES[b].cost=Math.round(ev/.95/10000)*10000}
+/* рисунок: силуэт по типу кузова, без логотипов */
+const BODY={
+ sedan:{w:[131,391],r:31,a:41,g:172,p:'M32 168L30 140Q32 124 60 120L150 112Q190 76 230 70L320 68Q350 70 380 102L470 110Q490 114 492 130L494 160Q494 172 484 172L432 172A41 41 0 0 0 350 172L172 172A41 41 0 0 0 90 172L44 172Q32 172 32 168Z',win:'M160 113Q194 82 232 77L318 75Q342 77 368 104Z',pil:[[262,76,262,108]]},
+ classic:{w:[131,391],r:30,a:40,g:170,p:'M30 166L30 130Q30 124 38 123L150 118L178 80L312 78L352 114L476 118Q492 119 492 134L492 160Q492 170 482 170L431 170A40 40 0 0 0 351 170L171 170A40 40 0 0 0 91 170L40 170Q30 170 30 166Z',win:'M160 116L184 86L306 85L340 114Z',pil:[[250,85,250,115]]},
+ hatch:{w:[140,380],r:31,a:40,g:170,p:'M56 166L54 114Q56 98 74 95L110 60Q118 54 134 54L300 56Q326 58 352 98L440 108Q464 112 466 130L468 160Q468 170 458 170L420 170A40 40 0 0 0 340 170L180 170A40 40 0 0 0 100 170L66 170Q56 170 56 166Z',win:'M78 96L114 64L298 64Q320 66 342 98Z',pil:[[200,64,200,97],[118,64,96,96]]},
+ suv:{w:[130,394],r:35,a:45,g:176,p:'M28 170L28 120Q30 104 52 100L96 96L130 52Q136 46 150 46L350 46Q362 46 372 56L410 94L468 100Q492 104 492 124L494 162Q494 176 482 176L439 176A45 45 0 0 0 349 176L175 176A45 45 0 0 0 85 176L40 176Q28 176 28 170Z',win:'M104 96L136 56L344 56Q354 56 362 64L396 96Z',pil:[[250,56,250,96],[160,56,152,96]]},
+ box:{w:[132,392],r:36,a:46,g:176,p:'M28 170L28 64Q28 50 42 50L338 48Q350 48 356 58L382 98L470 104Q490 106 492 122L494 162Q494 176 482 176L438 176A46 46 0 0 0 346 176L178 176A46 46 0 0 0 86 176L40 176Q28 176 28 170Z',win:'M46 60L336 58L366 98L46 98Z',pil:[[150,58,150,98],[256,58,256,98]]},
+ gwag:{w:[132,392],r:36,a:46,g:176,p:'M30 170L30 52Q30 44 38 44L346 44Q354 44 356 52L362 98L470 102Q490 104 490 120L492 164Q492 176 480 176L438 176A46 46 0 0 0 346 176L178 176A46 46 0 0 0 86 176L42 176Q30 176 30 170ZM14 70h16v70h-16z',win:'M44 54L344 54L348 96L44 96Z',pil:[[146,54,146,96],[250,54,250,96]]},
+ sport:{w:[133,393],r:32,a:41,g:170,p:'M30 160L32 136Q36 124 64 120L150 108Q210 70 252 68L298 68Q338 72 392 104L478 114Q496 118 496 134L496 158Q496 170 484 170L434 170A41 41 0 0 0 352 170L174 170A41 41 0 0 0 92 170L42 170Q30 170 30 160Z',win:'M166 108Q214 78 252 75L296 75Q330 79 372 104Z',pil:[[262,75,262,105]]}};
+const shade=(h,k)=>{const n=parseInt(h.slice(1),16),f=x=>Math.max(0,Math.min(255,Math.round(x*k)));return '#'+[n>>16,n>>8&255,n&255].map(f).map(x=>x.toString(16).padStart(2,'0')).join('')};
+function carSVG(p){
+  const c=CARS[p.m]||CARS.vaz,B=BODY[c[1]],col=(CLR[p.k]||CLR[0])[1],id='g'+(p.id||p.m+p.k).replace(/\W/g,''),dark=shade(col,.62),lite=shade(col,1.18);
+  const wheel=x=>`<circle cx="${x}" cy="${B.g}" r="${B.r}" fill="#111"/><circle cx="${x}" cy="${B.g}" r="${B.r*.62}" fill="#9da3ab"/><circle cx="${x}" cy="${B.g}" r="${B.r*.62}" fill="none" stroke="#6b7077" stroke-width="3" stroke-dasharray="4 7"/><circle cx="${x}" cy="${B.g}" r="${B.r*.2}" fill="#4a4e55"/>`;
+  const front=c[1]==='gwag'?490:B.w[1]+90,head=c[1]==='classic'?`<rect x="478" y="124" width="12" height="12" rx="2" fill="#fff6d0"/>`:`<path d="M${front-28} ${B.g-58}l24 3v8l-26-2z" fill="#fff6d0"/>`;
+  return `<svg class="car" viewBox="0 0 520 270"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${lite}"/><stop offset=".55" stop-color="${col}"/><stop offset="1" stop-color="${dark}"/></linearGradient></defs>
+<rect width="520" height="270" rx="22" fill="#18181b"/><text x="24" y="40" font-size="26" font-weight="700" fill="#f4f4f5">${esc(c[0])}</text><text x="24" y="66" font-size="19" fill="#8a8a93">${p.y} · ${(CLR[p.k]||CLR[0])[0].toLowerCase()}</text>
+<g transform="translate(0 50)"><ellipse cx="262" cy="${B.g+B.r-3}" rx="232" ry="8" fill="#000" opacity=".45"/><path d="${B.p}" fill="url(#${id})" stroke="${dark}" stroke-width="2"/><path d="${B.win}" fill="#1e2a36" opacity=".92"/><path d="${B.win}" fill="#9cc7ee" opacity=".16"/>
+${B.pil.map(l=>`<line x1="${l[0]}" y1="${l[1]}" x2="${l[2]}" y2="${l[3]}" stroke="${col}" stroke-width="7"/>`).join('')}
+<path d="M70 ${B.g-34}H460" stroke="${dark}" stroke-width="2" opacity=".6"/><rect x="${B.w[0]+52}" y="${B.g-48}" width="20" height="4" rx="2" fill="${dark}"/><rect x="${B.w[0]+150}" y="${B.g-48}" width="20" height="4" rx="2" fill="${dark}"/>
+${head}<rect x="${c[1]==='hatch'?56:30}" y="${B.g-52}" width="8" height="16" rx="2" fill="#d22"/>${B.w.map(wheel).join('')}</g></svg>`}
+/* контейнер */
+function boxSVG(b,open){const B=BOXES[b],rib=[...Array(14)].map((_,i)=>`<rect x="${44+i*31}" y="44" width="12" height="164" fill="${B.d}" opacity=".55"/>`).join('');
+  const door=(x,cls)=>`<g class="${cls}"><rect x="${x}" y="30" width="214" height="190" fill="${B.c}" stroke="${B.d}" stroke-width="4"/>${[0,1,2,3].map(i=>`<rect x="${x+14+i*50}" y="44" width="34" height="162" rx="3" fill="${B.d}" opacity=".45"/>`).join('')}<rect x="${x+(cls==='dl'?182:22)}" y="40" width="7" height="170" fill="#c9ccd1"/><rect x="${x+(cls==='dl'?172:12)}" y="116" width="26" height="12" rx="4" fill="#e6e8eb"/></g>`;
+  return `<svg class="box ${open?'open':''}" viewBox="0 0 520 250"><rect x="40" y="22" width="440" height="206" rx="6" fill="#0c0c0e"/><rect x="40" y="22" width="440" height="206" rx="6" fill="none" stroke="${B.d}" stroke-width="10"/>
+${door(46,'dl')}${door(260,'dr')}<rect x="34" y="18" width="452" height="14" rx="4" fill="${B.d}"/><rect x="34" y="218" width="452" height="14" rx="4" fill="${B.d}"/>
+<text x="260" y="246" font-size="0">${B.n}</text></svg>`}
+/* ===== именные номера (01 KG ARTEM) ===== */
+const NAME_COST=100000;
+/* надписи из 4–7 латинских букв; цена фиксированная, как у одинаковых номеров на торгах */
+const NW={};
+const nwAdd=(cat,price,list)=>list.split(' ').forEach(w=>NW[w]=[cat,price]);
+nwAdd(0,70000,'SALAM DOROGA MASHINA TAKSI MOTOR TURBO SPORT DRIFT LIMON KOFE RAKETA PILOT KOMPOT VOLNA ZVEZDA AVTO GOROD KLASS SOLNCE VETER RADUGA DRUG BRAT SEMYA LETO ZIMA OSEN VESNA MECHTA ULYBKA KOSMOS PLANETA SKOROST GONKA RULL DOSTUK JOLDOSH');
+nwAdd(1,100000,'AIBEK NURLAN AZAMAT BEKZAT DANIYAR ERLAN ILYAS TIMUR AIDAR ALINA AIZADA ASEL MAKSIM DANIL RUSLAN KANAT NURBEK ULAN AIGERIM ADILET BAKYT EMIR AMIR SAMAT MIRLAN ELDAR AIDANA KAMILA DIANA SOFIA ALEKSEI DMITRII IVAN NIKITA MARAT ERKIN TALANT ZARINA MADINA');
+nwAdd(1,150000,'ARTEM OLESIA SAYAKAT AKYLAI');
+nwAdd(2,200000,'KHAM BOSS KING KHAN BARS AKULA BURKUT ALTYN BAATYR KAPITAN GENERAL MAJOR LIDER PREMIUM BISHKEK');
+nwAdd(2,350000,'SULTAN LEGENDA KOROL IMPERIA');
+nwAdd(3,600000,'TENGRI');nwAdd(3,800000,'MANAS');nwAdd(3,900000,'KYRGYZ');
+const NCAT=['Надпись','Имя','Крутая надпись','Легендарная надпись'];
+const NAME_W=[67,25,7,1];
+const sameL=l=>/^(.)\1{6}$/.test(l);
+function valueName(r,l){
+  if(NAMED[l])return {f:['Именной номер','Единственный в игре'],off:0,note:'Именной номер — выдан лично, в прокрутке не выпадает',price:NAMED[l]};
+  if(sameL(l)){const price=l[0]==='A'?1000000:500000;return {f:['Именной номер','Семь одинаковых букв'],off:0,price,note:'Самый редкий именной номер: семь одинаковых букв'+(l[0]==='A'?' A':'')}}
+  const w=NW[l];if(!w)return {f:['Именной номер'],off:0,price:NAME_COST,note:'Именной номер'};
+  return {f:['Именной номер',NCAT[w[0]]],off:0,price:w[1],note:w[0]===0?'Обычная надпись — дешевле прокрутки':w[0]===1?'Имя — цена около стоимости прокрутки':w[0]===2?'Крутая надпись — в плюс':'Легендарная надпись — большой плюс'}}
+const tierName=p=>p>=700000?4:p>=300000?3:p>=150000?2:p>=100000?1:0;
+const NREG=['01','01','01','01','08','08','02','09','04','06','03','05','07'];
+function makeName(){const cat=+wpick(Object.fromEntries(NAME_W.map((w,i)=>[i,w])));let l;
+  if(cat===3&&Math.random()<.5)l=(Math.random()<.15?'A':pick(LET_NA)).repeat(7);
+  else l=pick(Object.keys(NW).filter(k=>NW[k][0]===cat));
+  const p={fmt:'name',r:pick(NREG),l},v=valueName(p.r,p.l);return Object.assign(p,v,{id:uid6(),t:Date.now(),tier:tierName(v.price),c:''})}
+
+/* гарантия: раз в 50–80 прокруток госномеров выпадает дорогой номер (от 30 000 сом) */
+const PITY_MIN=30000,PITY_MAX=150000,pityT=()=>50+Math.floor(Math.random()*31);
+function makePityPlate(){let p;for(let i=0;i<4000;i++){p=rawPlate(Math.random()<OLD_CHANCE);const v=evalPlate(p);if(v.price>=PITY_MIN&&v.price<=PITY_MAX){Object.assign(p,v);break}}
+  if(!p.price){p={fmt:'new',r:'01',d:'777',l:'KGZ'};Object.assign(p,evalPlate(p))}
+  return Object.assign(p,{id:uid6(),t:Date.now(),tier:tierOf(p.price),c:'',pity:1})}
+function makePlateP(){if(!S.pt)S.pt=pityT();S.pity=(S.pity||0)+1;
+  if(S.pity>=S.pt){S.pity=0;S.pt=pityT();return makePityPlate()}
+  const p=makePlate();if(p.price>=PITY_MIN){S.pity=0;S.pt=pityT()}return p}
 const isSim=p=>p.kind==='sim';
-const evalAny=p=>isSim(p)?evalSim(p):evalPlate(p);
-const tierAny=p=>isSim(p)?tierSim(p.price):tierOf(p.price);
-const code=p=>isSim(p)?'z'+p.op:p.fmt==='old'?OLD[p.r][0]:p.r;
-const placeOf=p=>isSim(p)?OPS[p.op].n+' · '+OPS[p.op].cat[p.cat||0]:REG[code(p)]+(p.fmt==='old'?' · старый формат':'');
-const keyStr=c=>isSim(c)?c.pre+c.s:c.r+(c.d||'')+c.l;
-const labelOf=p=>isSim(p)?p.pre+' '+p.s.slice(0,3)+' '+p.s.slice(3):(p.fmt==='name'?p.r+' '+p.l:p.r+' '+p.d+' '+p.l);
+const kindOf=p=>isCar(p)?'car':isSim(p)?'sim':p.fmt==='name'?'name':'plate';
+const evalAny=p=>isCar(p)?evalCar(p):isSim(p)?evalSim(p):evalPlate(p);
+const tierAny=p=>isCar(p)?tierCar(p):isSim(p)?tierSim(p.price):p.fmt==='name'&&!NAMED[p.l]?tierName(p.price):tierOf(p.price);
+const code=p=>isCar(p)?'car':isSim(p)?'z'+p.op:p.fmt==='old'?OLD[p.r][0]:p.r;
+const placeOf=p=>isCar(p)?(BOXES[p.b]||BOXES.blue).n+' контейнер':isSim(p)?OPS[p.op].n+' · '+OPS[p.op].cat[p.cat||0]:REG[code(p)]+(p.fmt==='old'?' · старый формат':p.fmt==='name'?' · именной':'');
+const keyStr=c=>isCar(c)?c.m+c.y+c.k:isSim(c)?c.pre+c.s:c.r+(c.d||'')+c.l;
+const labelOf=p=>isCar(p)?(CARS[p.m]||CARS.vaz)[0]+' '+p.y:isSim(p)?p.pre+' '+p.s.slice(0,3)+' '+p.s.slice(3):(p.fmt==='name'?p.r+' '+p.l:p.r+' '+p.d+' '+p.l);
+/* предмет для топа и профиля: только то, из чего цена считается заново */
+const packItem=({f,note,nb,off,price,tier,cat,id,t,c,pity,...r})=>r;
+const hydrate=q=>{const p={...q},v=evalAny(p);Object.assign(p,v);if(isSim(p))p.cat=v.cat;p.tier=tierAny(p);return p};
 
 /* ===== уровни ===== */
 /* 2 уровень — 70 000 на балансе, каждый следующий шаг на 10 000 больше предыдущего; бонус 5 000 × (уровень − 1) */
@@ -487,12 +621,12 @@ const MAXL=200;
 const levelFor=b=>{let n=1;while(n<MAXL&&b>=lvNeed(n+1))n++;return n};
 
 /* ===== состояние ===== */
-const PV=4;
-const FRESH=()=>({pv:PV,bal:START,col:[],cols:[],spent:0,earned:0,bonus:0,last:null,n:0,best:null,mode:'plate',lvl:levelFor(START),season:2});
+let uid=null;const PV=4,DEV=['hT5cqzjwwAR6TaxWb9GsMaRmtl03'];
+const FRESH=()=>({pv:PV,bal:START,col:[],cols:[],spent:0,earned:0,bonus:0,last:null,n:0,best:null,mode:'plate',lvl:levelFor(START),season:3,pity:0,pt:0,box:'blue',ach:[]});
 let S=FRESH();
 /* прогресс из версии без аккаунтов — предложим перенести при регистрации */
 let LEGACY=null;try{const s=JSON.parse(localStorage.getItem('kgplates3')||'null');if(s&&Array.isArray(s.col)&&(s.col.length||s.bal!==START))LEGACY=s}catch(e){}
-let LK='kgplates3',fb=null,uid=null,cloudT=0,dirty=false;
+let LK='kgplates3',fb=null,cloudT=0,dirty=false;
 /* сейф хранится одной записью в базе (лимит ~1 МБ), поэтому держим не больше SAFE_MAX номеров вне коллекции */
 const SAFE_MAX=1500,COL_MAX=300;
 function trimSafe(){
@@ -505,11 +639,13 @@ const save=()=>{if(!uid)return;trimSafe();try{localStorage.setItem(LK,JSON.strin
 function packState(st){const c={...st,col:st.col.map(({f,note,nb,off,price,tier,cat,...r})=>r)};return 'KG1:'+btoa(unescape(encodeURIComponent(JSON.stringify(c))))}
 /* пересчёт по новой системе цен */
 function rehydrate(st){st.col=(st.col||[]).filter(p=>p&&p.id);
-  for(const p of st.col){const v=evalAny(p);p.f=v.f;p.note=v.note;p.off=v.off;if(isSim(p))p.cat=v.cat;p.price=v.price;p.tier=tierAny(p)}
+  for(const p of st.col){const v=evalAny(p);p.f=v.f;p.note=v.note;p.off=v.off;if(isSim(p))p.cat=v.cat;p.price=v.price;p.tier=tierAny(p);if(st.best&&st.best.id===p.id)st.best.it=packItem(p)}
   if(st.pv!==PV){st.pv=PV;if(!st.lvl)st.lvl=levelFor(st.bal);if(st.best){const b=st.col.find(c=>c.id===st.best.id);st.best=b?{lab:labelOf(b),price:b.price,tier:b.tier,id:b.id}:null}}
   /* сезон 2: деньги сброшены до 100 000, остаются коллекция и номера от 50 000 сом */
-  if(st.season!==2){st.col=st.col.filter(p=>p.c||p.price>=50000);st.bal=START;st.lvl=levelFor(START);st.n=0;st.spent=0;st.earned=0;st.bonus=0;st.last=null;st.season=2;
-    const b=st.col.slice().sort((a,b)=>b.price-a.price)[0];st.best=b?{lab:labelOf(b),price:b.price,tier:b.tier,id:b.id}:null}
+  /* сезон 3: всем 50 000, остаётся только коллекция; аккаунт разработчика не трогаем */
+  if(st.season!==3){if(!DEV.includes(uid)&&String(st.nick||'').toLowerCase()!=='kham'){st.col=st.col.filter(p=>p.c);st.bal=START;st.lvl=levelFor(START);st.n=0;st.spent=0;st.earned=0;st.bonus=0;st.last=null;st.pity=0;st.pt=0;st.ach=[];
+    const b=st.col.slice().sort((a,b)=>b.price-a.price)[0];st.best=b?{lab:labelOf(b),price:b.price,tier:b.tier,id:b.id,it:packItem(b)}:null}st.season=3}
+  if(!Array.isArray(st.ach))st.ach=[];
   st.lvl=Math.max(st.lvl||1,1);return st}
 function unpackState(code){code=String(code||'').trim();if(!code.startsWith('KG1:'))return null;try{const st=JSON.parse(decodeURIComponent(escape(atob(code.slice(4)))));if(!Array.isArray(st.col)||typeof st.bal!=='number')return null;return rehydrate(st)}catch(e){return null}}
 addEventListener('pagehide',()=>flush());document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flush()});
@@ -523,11 +659,11 @@ const plateHTML=p=>p.fmt==='name'?namedHTML(p):p.fmt==='old'
   ?`<svg class="plate" viewBox="0 0 520 112">${PLATE_BOX}<use href="#kgf" x="22" y="42" width="42" height="28"/><text data-s x="150" y="81" font-size="70" text-anchor="middle">${p.r}</text><text data-s x="300" y="81" font-size="70" text-anchor="middle" letter-spacing="2">${p.d}</text><text data-s x="446" y="81" font-size="70" text-anchor="middle" letter-spacing="2"${fitL(p.l,70,90)}>${p.l}</text></svg>`
   :`<svg class="plate" viewBox="0 0 520 112">${PLATE_BOX}<line x1="112" y1="9" x2="112" y2="103" stroke="#111" stroke-width="2.5"/><text data-s x="61" y="58" font-size="54" text-anchor="middle">${p.r}</text><use href="#kgf" x="20" y="69" width="36" height="24"/><text x="83" y="91" font-size="27" text-anchor="middle" font-weight="600">KG</text><text data-s x="318" y="91" font-size="100" text-anchor="end">${p.d}</text><text data-s x="334" y="91" font-size="74"${fitL(p.l,74,166)}>${p.l}</text></svg>`;
 const simHTML=p=>`<div class="sim" style="--op:${OPS[p.op].bg};--opi:${OPS[p.op].ink}"><div class="chip"></div><div class="r"><div class="st"><b>${OPS[p.op].n}</b>${p.cat?`<span>${OPS[p.op].cat[p.cat]}</span>`:''}</div><div class="sn"><i>${p.pre}</i> ${p.s.slice(0,3)} ${p.s.slice(3)}</div></div></div>`;
-const itemHTML=p=>isSim(p)?simHTML(p):plateHTML(p);
+const itemHTML=p=>isCar(p)?carSVG(p):isSim(p)?simHTML(p):plateHTML(p);
 const rc=t=>`var(${RAR[t][1]})`;
 const pill=t=>`<span class="rar" style="--rc:${rc(t)}">${RAR[t][0]}</span>`;
 function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2400)}
-const cost=()=>S.mode==='sim'?SIM_COST:COST;
+const cost=()=>S.mode==='sim'?SIM_COST:S.mode==='name'?NAME_COST:S.mode==='car'?BOXES[S.box||'blue'].cost:COST;
 let shownBal=S.bal,balRaf=0,spinning=false;
 function drawBal(){
   const from=shownBal,to=S.bal,box=$('balBox');
@@ -544,6 +680,8 @@ function drawButtons(){
   const l25=S.lvl<5,b25=$('spin25');b25.classList.toggle('locked',l25);b25.disabled=!l25&&(S.bal<C*25||spinning);$('spin25V').textContent=l25?'🔒 с 5 уровня':short(C*25)+' с';
   const n=Math.floor(S.bal/C),lA=S.lvl<10,ba=$('allin');ba.classList.toggle('locked',lA);ba.disabled=!lA&&(n<1||spinning);$('allinV').textContent=lA?'🔒 с 10 уровня':n>0?n+' шт':'—';
   $('broke').hidden=!poor||spinning;
+  const pv=S.mode==='plate';$('pity').hidden=!pv;
+  if(pv){const t=S.pt||65,left=Math.max(1,t-(S.pity||0));$('pity').innerHTML=`<span>Дорогой номер (от ${short(PITY_MIN)}) гарантирован через <b>${left}</b> ${left%10===1&&left%100!==11?'прокрутку':left%10>=2&&left%10<=4&&(left%100<10||left%100>=20)?'прокрутки':'прокруток'}</span><span class="bar"><i style="width:${Math.min(100,(S.pity||0)/t*100).toFixed(1)}%"></i></span>`}
 }
 function drawLvl(){
   const n=S.lvl,a=lvNeed(n),b=lvNeed(n+1),k=n>=MAXL?1:Math.max(0,Math.min(1,(S.bal-a)/(b-a)));
@@ -553,7 +691,7 @@ function drawLvl(){
 }
 function resHTML(p){
   const t=p.tier,ch=p.f.filter(x=>x!=='Бишкек').map(x=>`<span>${esc(x)}</span>`).join('');
-  return `<div class="top"><div class="price">${fmt(p.price)}${p.price>=100000?`<small>≈ $${num(p.price/USD)}</small>`:''}</div>${pill(t)}</div>
+  return `<div class="top"><div class="price">${fmt(p.price)}${p.price>=100000&&!isCar(p)?`<small>≈ $${num(p.price/USD)}</small>`:''}</div>${pill(t)}</div>
     <div class="chips">${ch}</div><div class="note">${p.note||''}</div>`;
 }
 function showResult(p,anim){
@@ -563,9 +701,11 @@ function showResult(p,anim){
   const own=S.col.some(c=>c.id===p.id);$('sellLast').disabled=!own;$('sellLast').textContent=own?'Продать за '+fmt(p.price):'Продать';
 }
 function idle(){
-  const sm=S.mode==='sim';
-  $('big').innerHTML=itemHTML(sm?{kind:'sim',op:'b',pre:'0777',s:'777777',cat:4}:{fmt:'new',r:'01',d:'919',l:'RRR'});
-  $('res').innerHTML=`<div class="hint">Крутите и собирайте ${sm?'красивые номера телефонов':'госномера'}. Цена считается по официальному прайсу nomer.srs.kg и реальным продажам — подробнее в разделе «Уровни» → «Как считается цена».</div>`;
+  const m=S.mode,B=BOXES[S.box||'blue'];
+  $('big').innerHTML=m==='car'?boxSVG(S.box||'blue'):itemHTML(m==='sim'?{kind:'sim',op:'b',pre:'0777',s:'777777',cat:4}:m==='name'?{fmt:'name',r:'01',l:'ARTEM'}:{fmt:'new',r:'01',d:'919',l:'RRR'});
+  $('res').innerHTML=`<div class="hint">${m==='car'?`${B.n} контейнер: машины от ${short(Math.min(...Object.keys(B.pool).map(k=>carPrice(k,CARS[k][2]))))} до ${short(Math.max(...Object.keys(B.pool).map(k=>carPrice(k,CARS[k][3]))))} сом. Чаще выпадают машины около цены контейнера, редко — намного дороже.`
+    :m==='name'?'Именной номер с надписью до 7 букв. Обычная надпись — 70 000, имя — 100–150 тыс., крутая надпись — 200–350 тыс., легендарная и 7 одинаковых букв — до 1 000 000.'
+    :`Крутите и собирайте ${m==='sim'?'красивые номера телефонов':'госномера'}. Цена — по прайсу nomer.srs.kg и реальным продажам, подробнее в «Аккаунт» → «Как считается цена».`}</div>`;
   $('sellLast').disabled=true;$('sellLast').textContent='Продать';
 }
 function drawRecent(){
@@ -584,6 +724,13 @@ const DIG='0123456789',OLDK=Object.keys(OLD);
 const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 function reel(p,done){
   const big=$('big');if(reduced()){done();return}
+  if(isCar(p)){big.innerHTML=boxSVG(p.b);big.classList.add('shake');vibrate(30);
+    setTimeout(()=>{big.classList.remove('shake');big.querySelector('.box').classList.add('open');vibrate(20)},650);setTimeout(done,1350);return}
+  if(p.fmt==='name'){big.innerHTML=namedHTML({r:p.r,l:p.l});const tx=big.querySelectorAll('text')[2],pl=big.firstElementChild,L=p.l.length,t0=performance.now();let last=0,locked=-1;
+    const fr=t=>{const lock=Math.max(0,Math.floor((t-t0-260)/150));if(lock>=L){done();return}
+      if(t-last>50){last=t;tx.textContent=[...p.l].map((c,i)=>i<lock?c:pick(LET)).join('');
+        if(lock!==locked){locked=lock;big.classList.remove('lock');void pl.offsetWidth;big.classList.add('lock')}}
+      requestAnimationFrame(fr)};requestAnimationFrame(fr);return}
   if(isSim(p)){
     big.innerHTML=simHTML({op:p.op,pre:p.pre,s:'000000'});const sn=big.querySelector('.sn'),pre='<i>'+p.pre+'</i> ',card=big.firstElementChild;
     const t0=performance.now();let last=0,locked=-1;
@@ -604,8 +751,8 @@ function reel(p,done){
       if(lock!==locked){locked=lock;big.classList.remove('lock');void pl.offsetWidth;big.classList.add('lock')}}
     requestAnimationFrame(fr)};requestAnimationFrame(fr);
 }
-function track(p){S.n++;if(!S.best||p.price>S.best.price)S.best={lab:labelOf(p),price:p.price,tier:p.tier,id:p.id}}
-const makeItem=()=>S.mode==='sim'?makeSim():makePlate();
+function track(p){S.n++;if(!S.best||p.price>S.best.price)S.best={lab:labelOf(p),price:p.price,tier:p.tier,id:p.id,it:packItem(p)}}
+const makeItem=()=>S.mode==='sim'?makeSim():S.mode==='name'?makeName():S.mode==='car'?makeCar(S.box||'blue'):makePlateP();
 function spinOnce(){
   const C=cost();if(spinning||S.bal<C)return;
   spinning=true;S.bal-=C;S.spent+=C;drawBal();
@@ -613,7 +760,7 @@ function spinOnce(){
   $('res').innerHTML='<div class="hint">Крутится…</div>';$('sellLast').disabled=true;$('sellLast').textContent='Продать';
   reel(p,()=>{spinning=false;$('big').classList.remove('lock');showResult(p,true);drawBal();drawRecent();drawStats();celebrate(p)});
 }
-function celebrate(p){if(p.tier>=2)burst(p.tier);if(p.tier>=3){toast(RAR[p.tier][0]+'! '+fmt(p.price));vibrate(p.tier===4?[60,40,140]:60)}}
+function celebrate(p){checkAch();if(p.pity)toast('Гарантированный дорогой номер!');if(p.tier>=2)burst(p.tier);if(p.tier>=3){toast(RAR[p.tier][0]+'! '+fmt(p.price));vibrate(p.tier===4?[60,40,140]:60)}}
 /* конфетти */
 const fx=$('fx'),cx=fx.getContext('2d');let parts=[],fxRaf=0;
 function burst(tier){
@@ -648,7 +795,7 @@ function multiSpin(n,title,auto){
     <button class="opt" id="ok10">Оставить в сейфе<span>${got.length} шт</span></button>`);
   $('sheet').onclick=e=>{if(e.target.closest('#sellCheap')){closeSheet();sell(cheap.map(p=>p.id))}else if(e.target.closest('#sellAllGot')){closeSheet();sell(got.map(p=>p.id))}else if(e.target.closest('#ok10'))closeSheet()};
   if(got.length&&got[0].tier>=3){toast(RAR[got[0].tier][0]+'! '+fmt(got[0].price));vibrate(80)}
-  if(autoN)checkLevel();
+  if(autoN)checkLevel();checkAch();
 }
 let pending={};
 function confirmTap(key,msg){const now=Date.now();if(pending[key]&&now-pending[key]<3000){pending[key]=0;return true}pending[key]=now;toast(msg);return false}
@@ -670,7 +817,7 @@ function sell(ids){
   S.col=S.col.filter(c=>{if(set.has(c.id)){v+=c.price;n++;return false}return true});
   S.bal+=v;S.earned+=v;
   toast(`Продано ${n} шт. · +${fmt(v)}`);
-  checkLevel();save();drawBal();drawRecent();drawStats();if($('v-safe').classList.contains('on'))drawSafe();
+  checkLevel();checkAch();save();drawBal();drawRecent();drawStats();if($('v-safe').classList.contains('on'))drawSafe();
   return v;
 }
 /* повышение уровня: баланс дошёл до порога */
@@ -680,9 +827,9 @@ function checkLevel(){
   if(!ups.length)return;
   const last=ups[ups.length-1],sum=ups.reduce((s,n)=>s+lvBonus(n),0),unl=ups.filter(n=>UNLOCK[n]).map(n=>UNLOCK[n]);
   const lvShow=()=>{if(!$('shade').hidden){setTimeout(lvShow,600);return}burst(3);vibrate([50,30,50]);
-    openSheet(`<h3>Уровень ${last}!</h3><p>${ups.length>1?'Уровни '+ups.join(', ')+'. ':''}Бонус зачислен на баланс.</p>
+    openSheet(`<h3>Уровень ${last}!</h3><p>${ups.length>5?'Уровни '+ups[0]+'–'+last+'. ':ups.length>1?'Уровни '+ups.join(', ')+'. ':''}Бонус зачислен на баланс.</p>
       <div class="delta win">+${fmt(sum)}</div>${unl.length?`<p>Открыто: <b>${unl.join(', ')}</b></p>`:''}
-      <p>Следующий уровень: ${fmt(lvNeed(last+1))} на балансе, бонус ${fmt(lvBonus(last+1))}.</p><button class="cancel">Отлично</button>`)};setTimeout(lvShow,300);
+      ${last>=MAXL?'<p>Это максимальный уровень!</p>':`<p>Следующий уровень: ${fmt(lvNeed(last+1))} на балансе, бонус ${fmt(lvBonus(last+1))}.</p>`}<button class="cancel">Отлично</button>`)};setTimeout(lvShow,300);
 }
 
 /* ===== сейф ===== */
@@ -733,7 +880,7 @@ function drawLevels(){
     <div class="bar"><i style="width:${(k*100).toFixed(1)}%"></i></div>
     ${n>=MAXL?'<div class="hint">Вы прошли все уровни!</div>':`<div class="hint">До ${n+1} уровня нужно <b style="color:var(--ink)">${fmt(b)}</b> на балансе — осталось ${fmt(Math.max(0,b-S.bal))}. Бонус: <b style="color:var(--green)">+${fmt(lvBonus(n+1))}</b></div>`}
     ${nextU?`<div class="hint">Уровень ${nextU} откроет: <b style="color:var(--ink)">${UNLOCK[nextU]}</b></div>`:''}
-    <button class="opt" id="rulesBtn">Как считается цена номеров<span>›</span></button>`;
+    <button class="opt" id="rulesBtn">Как считается цена<span>›</span></button>`;
   let h='';
   for(let i=2;i<=MAXL;i++)h+=`<div class="lv ${i<=n?'done':''} ${i===n+1?'cur':''}"><b>${i<=n?'✓':i}</b><div class="d">Уровень ${i}${UNLOCK[i]?`<span class="unl">${UNLOCK[i]}</span>`:''}<small>${fmt(lvNeed(i))} на балансе${i<=n?' · получен':i===n+1?' · следующий':''}</small></div><span class="bn">+${short(lvBonus(i))}</span></div>`;
   $('lvList').innerHTML=h;
@@ -757,8 +904,17 @@ function rulesSheet(){
   <li>Реальные продажи — точная цена сделки: 01 777 AAA — 1 716 000, 01 888 BBB — 604 000, 07 777 APC — 112 000, 01 919 RRR — 31 500 и др.</li>
   <li>Старые номера (B 1234 AB): 4 одинаковые цифры — 300–600 тыс., 0001 — 200 тыс., 0002–0009 — 100 тыс., круглые — 60 тыс., пары — 20 тыс., обычный — 1 500–2 000. Одинаковые буквы ×2, буквы как серия ×3, серии BB, BM, BK, BC, BS +50 000.</li>
   <li>Сим-карты — по прайсам операторов и лотам аукциона О!.</li>
-  <li>Чем дороже номер, тем реже он выпадает.</li></ul>
-  <h4>Уровни</h4><ul><li>2 уровень — 70 000 на балансе, каждый следующий шаг на 10 000 больше: 80 000, 100 000, 130 000, 170 000…</li><li>Бонус за уровень: 5 000 × (уровень − 1).</li><li>×25 — с 5 уровня, ва-банк — с 10 уровня.</li></ul>
+  <li>Чем дороже номер, тем реже он выпадает.</li>
+  <li>Гарантия: раз в 50–80 прокруток госномеров выпадает номер от ${short(PITY_MIN)} до ${short(PITY_MAX)} сом. Если дорогой номер выпал сам, отсчёт начинается заново.</li></ul>
+  <h4>Стоимость прокрутки</h4><ul><li>Госномер — ${fmt(COST)}, сим-карта — ${fmt(SIM_COST)}, именной номер — ${fmt(NAME_COST)}.</li>
+  <li>Контейнеры: ${Object.values(BOXES).map(B=>B.n.toLowerCase()+' — '+fmt(B.cost)).join(', ')}.</li>
+  <li>Цена прокрутки чуть выше средней стоимости выпадающего (примерно 96%). Поэтому бесконечно фармить нельзя: в плюс выводят редкие дорогие выпадения.</li></ul>
+  <h4>Именные номера</h4><ul><li>Надпись до 7 латинских букв. Обычная надпись (SALAM, TURBO…) — 70 000, имя (AIBEK, NURLAN…) — 100 000, ARTEM, OLESIA — 150 000.</li>
+  <li>Крутые надписи (BOSS, KING, KHAN, BISHKEK…) — 200 000, SULTAN, LEGENDA — 350 000.</li><li>TENGRI — 600 000, MANAS — 800 000, KYRGYZ — 900 000, семь одинаковых букв — 500 000, AAAAAAA — 1 000 000.</li></ul>
+  <h4>Машины</h4><ul><li>Цена — средняя по объявлениям lalafo.kg и mashina.kg (ноябрь 2026) для модели и года, по курсу ${USD} сом за $1.</li>
+  <li>Синий контейнер — старые машины (ВАЗ, Matiz, Camry 20…), редко Lexus LX 470. Красный — Camry 70, BMW 5, Lexus ES…, редко BMW M5 и Lexus LX 570. Жёлтый — X7, Cayenne, Land Cruiser 300…, редко G 63, Urus и Rolls-Royce Cullinan.</li>
+  <li>Примерно половина машин дешевле контейнера, треть — около его цены, каждая седьмая — в плюс, совсем редкие — в 2–5 раз дороже.</li></ul>
+  <h4>Уровни</h4><ul><li>2 уровень — 70 000 на балансе, каждый следующий шаг на 10 000 больше: 80 000, 100 000, 130 000, 170 000… После 50 уровня каждый следующий на 3% дороже, 200 уровень — около 1 млрд.</li><li>Бонус за уровень: 5 000 × (уровень − 1), после 50 уровня — 1% от порога.</li><li>×25 — с 5 уровня, ва-банк — с 10 уровня.</li></ul>
   </div><button class="cancel">Закрыть</button>`);
 }
 
@@ -798,19 +954,67 @@ function renameSheet(cn){
   $('sheet').onclick=e=>{if(e.target.closest('#ncolBtn')){const v=$('ncol').value.trim().slice(0,30);if(!v)return;cn.name=v;save();closeSheet();drawSafe()}};
 }
 
+/* ===== аккаунт и достижения ===== */
+const ACH=[
+ ['n1','Первая прокрутка','1 прокрутка',()=>S.n>=1],['n100','Сотня','100 прокруток',()=>S.n>=100],['n1k','Тысяча','1 000 прокруток',()=>S.n>=1000],
+ ['n10k','Без остановки','10 000 прокруток',()=>S.n>=10000],['n100k','Легенда барабана','100 000 прокруток',()=>S.n>=100000],
+ ['l10','Уровень 10','открыт ва-банк',()=>S.lvl>=10],['l50','Уровень 50','',()=>S.lvl>=50],['l100','Уровень 100','',()=>S.lvl>=100],['l200','Уровень 200','максимум',()=>S.lvl>=200],
+ ['name','Именной номер','выбить именной номер',()=>S.col.some(c=>c.fmt==='name')],['car','Первая машина','открыть контейнер',()=>S.col.some(isCar)],
+ ['gold','Жёлтый контейнер','машина из жёлтого',()=>S.col.some(c=>isCar(c)&&c.b==='gold')],['p1m','Миллионный номер','номер дороже 1 млн',()=>S.col.some(c=>!isCar(c)&&c.price>=1000000)],
+ ['vip','VIP-симка','сим-карта от 50 000',()=>S.col.some(c=>isSim(c)&&c.price>=50000)],['c10','Коллекционер','10 предметов в коллекции',()=>S.col.filter(c=>c.c).length>=10],
+ ['m1','Миллионер','1 млн на балансе',()=>S.bal>=1e6],['m100','Магнат','100 млн на балансе',()=>S.bal>=1e8]];
+function checkAch(quiet){const got=[];for(const [id,t,,f] of ACH)if(!S.ach.includes(id)&&f()){S.ach.push(id);got.push(t)}
+  if(got.length&&!quiet)setTimeout(()=>toast(got.length>2?'Новых достижений: '+got.length:'Достижение: '+got.join(', ')),900);return got.length}
+const safeVal=()=>S.col.reduce((a,c)=>a+c.price,0);
+const topItems=n=>S.col.slice().sort((a,b)=>b.price-a.price).slice(0,n);
+function drawAcc(){
+  checkAch(true);const top=topItems(1)[0],val=safeVal(),bi=S.best&&S.best.it&&(!top||S.best.id!==top.id)?hydrate(S.best.it):null;
+  $('acc').innerHTML=`<div class="acc-hd"><div class="av">${esc((S.nick||'?').slice(0,1).toUpperCase())}</div><div><h1>${esc(S.nick||'Игрок')}</h1><span>Уровень ${S.lvl} из ${MAXL}</span></div></div>
+  <div class="kp"><div class="big1"><b>${num(S.n)}</b><span>прокруток всего</span></div><div><b>${short(S.bal)}</b><span>на балансе</span></div><div><b>${short(val)}</b><span>в сейфе · ${num(S.col.length)} шт</span></div>
+  <div><b>${S.ach.length}/${ACH.length}</b><span>достижений</span></div><div><b>${S.col.filter(isCar).length}</b><span>машин</span></div></div>
+  <h2>Самое дорогое у вас</h2>${top?`<button class="acc-best" data-id="${top.id}"><div class="pw">${itemHTML(top)}</div><div class="meta"><b>${fmt(top.price)}</b>${pill(top.tier)}</div></button>`:'<div class="empty">Пока пусто — начните крутить</div>'}
+  ${bi?`<h2>Лучшая находка за всё время</h2><div class="acc-best"><div class="pw">${itemHTML(bi)}</div><div class="meta"><b>${fmt(bi.price)}</b>${pill(bi.tier)}</div></div>`:''}
+  <h2>Достижения · ${S.ach.length} из ${ACH.length}</h2><div class="ach">${ACH.map(([id,t,d])=>`<div class="${S.ach.includes(id)?'ok':''}">${t}<small>${d}</small></div>`).join('')}</div>
+  <div class="accb"><button class="opt" id="pPlay">Крутить<span>›</span></button><button class="opt" id="pRules">Как считается цена<span>›</span></button><button class="opt" id="pPass">Сменить пароль<span>›</span></button>
+  <div class="new" id="pPassBox" hidden><input class="inp" id="pNew" type="password" placeholder="Новый пароль" autocomplete="new-password"><button id="pPassGo">ОК</button></div>
+  <button class="opt danger" id="pOut">Выйти из аккаунта<span></span></button></div>`;
+}
+$('acc').addEventListener('click',async e=>{
+  const b=e.target.closest('.acc-best[data-id]');if(b){openDetail(b.dataset.id);return}
+  if(e.target.closest('#pPlay'))go('spin');
+  if(e.target.closest('#pRules'))rulesSheet();
+  if(e.target.closest('#pPass'))$('pPassBox').hidden=false;
+  if(e.target.closest('#pPassGo')){const v=$('pNew').value;if(v.length<6){toast('От 6 символов');return}
+    try{await fb.auth.currentUser.updatePassword(v);toast('Пароль изменён');$('pPassBox').hidden=true}
+    catch(x){toast(x.code==='auth/requires-recent-login'?'Выйдите и войдите снова, затем смените пароль':'Не получилось: '+(x.code||''))}}
+  if(e.target.closest('#pOut')){if(!confirmTap('out','Нажмите ещё раз, чтобы выйти'))return;await flush();await fb.auth.signOut()}
+});
+/* профиль игрока из топа */
+function profileSheet(r){
+  const its=(r.top||[]).map(q=>{try{return hydrate(q)}catch(e){return null}}).filter(p=>p&&p.price),bi=r.bi?hydrate(r.bi):null;
+  const mini=p=>`<div class="mini" style="--rc:${rc(p.tier)}"><div class="pw">${itemHTML(p)}</div><div class="v"><span>${fmt(p.price)}</span><i></i></div></div>`;
+  openSheet(`<div class="acc-hd" style="padding-top:0"><div class="av">${esc((r.nick||'?').slice(0,1).toUpperCase())}</div><div><h1>${esc(r.nick||'Игрок')}</h1><span>Уровень ${r.lvl||1}${r.id===uid?' · это вы':''}</span></div></div>
+  <div class="kp"><div class="big1"><b>${num(r.n||0)}</b><span>прокруток</span></div><div><b>${short(r.bal||0)}</b><span>на балансе</span></div><div><b>${short(r.val||0)}</b><span>в сейфе</span></div><div><b>${r.ach||0}/${ACH.length}</b><span>достижений</span></div><div><b>${num(r.rich||0)}</b><span>дороже 50 000</span></div></div>
+  ${bi?`<h4>Лучшая находка</h4><div class="pw">${itemHTML(bi)}</div><p><b>${fmt(bi.price)}</b> · ${RAR[bi.tier][0]}</p>`:''}
+  ${its.length?`<h4>Самое дорогое в сейфе</h4><div class="grid2">${its.map(mini).join('')}</div>`:''}<button class="cancel">Закрыть</button>`);
+}
+
 /* ===== навигация ===== */
 function go(v){
   for(const s of document.querySelectorAll('.view'))s.classList.toggle('on',s.id==='v-'+v);
   for(const b of document.querySelectorAll('nav button'))b.classList.toggle('on',b.dataset.v===v);
   if(v==='safe'){sel.clear();selMode=false;shown=60;drawSafe()}else{$('selbar').hidden=true}
-  if(v==='spin')drawRecent();if(v==='lvl')drawLevels();if(v==='top')drawTop();
+  if(v==='spin')drawRecent();if(v==='lvl')drawLevels();if(v==='top')drawTop();if(v==='acc')drawAcc();
   window.scrollTo(0,0);
 }
 for(const b of document.querySelectorAll('nav button'))b.addEventListener('click',()=>go(b.dataset.v));
 $('lvlBtn').addEventListener('click',()=>go('lvl'));
-function setMode(m){
+function drawBoxes(){$('boxes').innerHTML=Object.entries(BOXES).map(([k,B])=>`<button data-b="${k}" class="${k===(S.box||'blue')?'on':''}">${boxSVG(k)}${B.n}<small>${short(B.cost)} с</small></button>`).join('')}
+$('boxes').addEventListener('click',e=>{const b=e.target.closest('[data-b]');if(!b||spinning)return;S.box=b.dataset.b;setMode('car');save()});
+function setMode(m){if(!['plate','name','sim','car'].includes(m))m='plate';
   S.mode=m;for(const b of $('modes').children)b.classList.toggle('on',b.dataset.m===m);
-  drawButtons();const last=S.col.find(c=>c.id===S.last);if(last&&isSim(last)===(m==='sim'))showResult(last,false);else idle();
+  $('boxes').hidden=m!=='car';if(m==='car')drawBoxes();
+  drawButtons();const last=S.col.find(c=>c.id===S.last);if(last&&kindOf(last)===m&&(m!=='car'||last.b===S.box))showResult(last,false);else idle();
 }
 $('modes').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b||spinning)return;setMode(b.dataset.m);save()});
 
@@ -822,8 +1026,8 @@ let pendSt=null,tab='in';
 function drawNick(){$('meBtn').textContent=(S.nick||'?').slice(0,1).toUpperCase()}
 function applyState(st){
   S=Object.assign(FRESH(),st);shownBal=S.bal;$('bal').textContent=num(S.bal);
-  setMode(S.mode==='sim'?'sim':'plate');drawBal();drawRecent();drawStats();drawNick();
-  if($('v-safe').classList.contains('on'))drawSafe();if($('v-lvl').classList.contains('on'))drawLevels();
+  if(!S.pt)S.pt=pityT();setMode(S.mode);drawBal();drawRecent();drawStats();drawNick();
+  if($('v-safe').classList.contains('on'))drawSafe();if($('v-lvl').classList.contains('on'))drawLevels();if($('v-acc').classList.contains('on'))drawAcc();
 }
 function cloudSave(){if(!uid||!fb)return;dirty=true;clearTimeout(cloudT);cloudT=setTimeout(flush,2500)}
 async function flush(){
@@ -835,8 +1039,8 @@ async function flush(){
   try{await fb.db.collection('board').doc(uid).set(boardData())}catch(e){}
 }
 /* ===== топ игроков ===== */
-const boardData=()=>({nick:S.nick||'',bal:Math.round(S.bal),best:S.best?S.best.price:0,bestLab:S.best?S.best.lab:'',rich:S.col.filter(c=>c.price>=50000).length,lvl:S.lvl,n:S.n||0,season:2,updated:firebase.firestore.FieldValue.serverTimestamp()});
-const TOPK={bal:'Деньги на балансе',best:'Самый дорогой номер или сим-карта, выпавшие игроку',rich:'Сколько в сейфе номеров и сим-карт дороже 50 000 сом'};
+const boardData=()=>({nick:S.nick||'',bal:Math.round(S.bal),best:S.best?S.best.price:0,bestLab:S.best?S.best.lab:'',rich:S.col.filter(c=>c.price>=50000).length,lvl:S.lvl,n:S.n||0,season:3,val:Math.round(safeVal()),ach:S.ach.length,top:topItems(6).map(packItem),bi:S.best&&S.best.it||null,updated:firebase.firestore.FieldValue.serverTimestamp()});
+const TOPK={n:'Сколько всего прокруток',bal:'Деньги на балансе',best:'Самый дорогой номер или сим-карта, выпавшие игроку',rich:'Сколько в сейфе номеров и сим-карт дороже 50 000 сом'};
 let topKind='bal',topCache={};
 async function drawTop(force){
   $('topHint').textContent=TOPK[topKind];
@@ -844,7 +1048,7 @@ async function drawTop(force){
   const c=topCache[topKind];if(!force&&c&&Date.now()-c.t<30000){renderTop();return}
   $('topList').innerHTML='<div class="empty">Загружаем…</div>';
   try{dirty=true;await flush();const q=await fb.db.collection('board').orderBy(topKind,'desc').limit(50).get();
-    topCache[topKind]={t:Date.now(),rows:q.docs.map(d=>Object.assign({id:d.id},d.data())).filter(r=>r.season===2)};renderTop()}
+    topCache[topKind]={t:Date.now(),rows:q.docs.map(d=>Object.assign({id:d.id},d.data())).filter(r=>r.season===3)};renderTop()}
   catch(e){$('topList').innerHTML='<div class="empty">Не удалось загрузить рейтинг. Проверьте интернет.</div>'}
 }
 function itemFromLab(lab,price){let m;
@@ -853,13 +1057,14 @@ function itemFromLab(lab,price){let m;
   if(m=/^([A-Z]) (\d{4}) ([A-Z]{2})$/.exec(lab))return OLD[m[1]]?{fmt:'old',r:m[1],d:m[2],l:m[3]}:null;
   if(m=/^(0\d{3}) (\d{3}) (\d{3})$/.exec(lab)){const op=Object.keys(OPS).find(k=>OPS[k].pre.includes(m[1]))||'o';return {kind:'sim',op,pre:m[1],s:m[2]+m[3],cat:simCat(price||0)}}
   return null}
-function topPlate(r){const it=r.bestLab&&itemFromLab(r.bestLab,r.best);return it?`<div class="pw tpw">${itemHTML(it)}</div>`:''}
+function topPlate(r){const it=r.bi?hydrate(r.bi):r.bestLab&&itemFromLab(r.bestLab,r.best);return it?`<div class="pw tpw">${itemHTML(it)}</div>`:''}
 function renderTop(){
   const k=topKind,rows=topCache[k].rows;
-  $('topList').innerHTML=rows.length?rows.map((r,i)=>`<div class="tp ${r.id===uid?'mine':''}"><span class="n">${i<3?['🥇','🥈','🥉'][i]:i+1}</span><div class="nm">${esc(r.nick||'Игрок')}${r.id===uid?' (вы)':''}<small>Уровень ${r.lvl||1}</small>${k==='best'?topPlate(r):''}</div><b>${k==='rich'?num(r.rich||0)+' шт':fmt(r[k]||0)}</b></div>`).join(''):'<div class="empty">Пока никого нет</div>';
+  $('topList').innerHTML=rows.length?rows.map((r,i)=>`<div class="tp ${r.id===uid?'mine':''}" data-i="${i}"><span class="n">${i<3?['🥇','🥈','🥉'][i]:i+1}</span><div class="nm">${esc(r.nick||'Игрок')}${r.id===uid?' (вы)':''}<small>Уровень ${r.lvl||1}</small>${k==='best'?topPlate(r):''}</div><b>${k==='rich'?num(r.rich||0)+' шт':k==='n'?num(r.n||0):fmt(r[k]||0)}</b></div>`).join(''):'<div class="empty">Пока никого нет</div>';
 }
 $('topKind').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;topKind=b.dataset.t;for(const x of $('topKind').children)x.classList.toggle('on',x===b);drawTop()});
 $('topRef').addEventListener('click',()=>drawTop(true));
+$('topList').addEventListener('click',e=>{const t=e.target.closest('.tp[data-i]');if(t)profileSheet(topCache[topKind].rows[+t.dataset.i])});
 function setTab(t){tab=t;for(const b of $('aTabs').children)b.classList.toggle('on',b.dataset.t===t);
   const up=t==='up';$('aPass2').hidden=!up;$('aImp').hidden=!up;$('aGo').textContent=up?'Создать аккаунт':'Войти';
   $('aPass').placeholder=up?'Пароль (от 6 символов)':'Пароль';$('aPass').autocomplete=up?'new-password':'current-password';
@@ -885,21 +1090,7 @@ $('aForm').addEventListener('submit',async e=>{
   try{tab==='up'?await fb.auth.createUserWithEmailAndPassword(nickMail(nick),pass):await fb.auth.signInWithEmailAndPassword(nickMail(nick),pass)}
   catch(x){err.textContent=ERR[x.code]||'Ошибка: '+(x.code||x.message);$('aGo').disabled=false;pendSt=null}
 });
-$('meBtn').addEventListener('click',()=>{
-  openSheet(`<h3>${esc(S.nick||'Игрок')}</h3><p>Уровень ${S.lvl} · ${fmt(S.bal)} · ${S.col.length} шт в сейфе. Прогресс сохраняется в аккаунте.</p>
-    <button class="opt" id="pRules">Как считается цена<span>›</span></button>
-    <button class="opt" id="pPass">Сменить пароль<span>›</span></button>
-    <div class="new" id="pPassBox" hidden><input class="inp" id="pNew" type="password" placeholder="Новый пароль" autocomplete="new-password"><button id="pPassGo">ОК</button></div>
-    <button class="opt danger" id="pOut">Выйти из аккаунта<span></span></button><button class="cancel">Закрыть</button>`);
-  $('sheet').onclick=async e=>{
-    if(e.target.closest('#pRules'))rulesSheet();
-    if(e.target.closest('#pPass'))$('pPassBox').hidden=false;
-    if(e.target.closest('#pPassGo')){const v=$('pNew').value;if(v.length<6){toast('От 6 символов');return}
-      try{await fb.auth.currentUser.updatePassword(v);toast('Пароль изменён');closeSheet()}
-      catch(x){toast(x.code==='auth/requires-recent-login'?'Выйдите и войдите снова, затем смените пароль':'Не получилось: '+(x.code||''))}}
-    if(e.target.closest('#pOut')){await flush();closeSheet();await fb.auth.signOut()}
-  };
-});
+$('meBtn').addEventListener('click',()=>go('acc'));
 $('aCode').addEventListener('input',()=>{if(tab==='up')$('aGo').textContent=$('aCode').value.trim()?'Создать аккаунт с прогрессом':'Создать аккаунт'});
 
 /* запуск */
