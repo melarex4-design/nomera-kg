@@ -575,7 +575,7 @@ const BOXES={
  red:{n:'Красный',c:'#b8373f',d:'#8e252c',cost:0,pool:{accord:20,elantra:20,camry55:18,e212:14,f10:14,sonata:14,camry70:14,k5:12,tucson:12,sportage:12,rav4:10,c205:10,a6:9,tiguan:9,highl:6,es:10,rx:8,x5:5,prado:5,m5f90:.7,lx570:.45,solaris:20,rio:20,malibu:20,optima:18.6,corolla210:12.4,c180:19.5,e60:20,e39m5:10.6,f30:13.3,a4:10.3,q5:7.7,gl166:8.5,w221:13.8,s63w221:8.1,e63w212:6.5,lc200:6.5,crv5:9.4,outlander:12.0,santafe:8.5,sorento:8.5,k8:6.9,grandeur:9.4,tesla3:8.5,prius:15.6,songplus:9.2,tiggo7:13.8,rexton:17.7,hilux:7.7,wrangler:6.6,mustang:8.9,camaro:9.2,challeng:8.1}},
  gold:{n:'Жёлтый',c:'#d9a521',d:'#a87c12',cost:0,pool:{zeekr:16,palisade:20,l9:14,rx350:18,ls:10,gle:12,modelx:8,q8:10,x6:10,w214:8,x7:14,cayenne:14,lc300:12,gx550:8,rr:8,s223:7,lx600:5,m5g90:4,g63:4,urus:1,cullinan:.5,m3:11.1,m4:13.0,m2:12.5,m8:8.0,x5m:7.6,x6m:7.2,e63s:11.5,e53:15.7,c63:19.1,s63:10.0,gle63:7.6,gt63:7.2,rs6:7.6,rs7:7.8,rsq8:6.5,r8:5.2,taycan:5.9,panamera:9.0,macan:16.5,rrsport:10.7,defender:11.1,velar:19.5,escalade:11.1,tahoe:17.4,trx:9.0,raptor:12.5,lc500:10.7,g90:12.5,gv80:18.4,plaid:10.7,h9:15.7,levante:16.5,qporte:14.2,vantage:6.2,ftype:12.0,c8:10.3,gtr:7.6,supra:18.4}},
  black:{n:'Чёрный',c:'#2a2a2e',d:'#111113',cost:0,fix:50000000,pool:{gls600:3,bentayga:3,maybach:3,dbx:3,p911:4,contgt:4,roma:4,flying:4,huracan:5,urus:5,urusp:5,gt3rs:5,f8:5,ghost:6,f296:6,mcl750:6,brabus:6,cullinan:7,spectre:7,pista:7,phantom:8,mcl765:7,sf90:8,svj:8,puro:8,f812:8,revuelto:8,fordgt:2,lfa:2,senna:3,veyron:2.8,p918:2.6,chiron:3.4,huayra:1.4,amgone:1.4,valkyrie:1.2,jesko:1.2,g6344:14.1,dawn:15.1,avents:11.0,portof:20}}};
-const CLR=[['Белый','#ececef'],['Чёрный','#1c1d22'],['Серебристый','#a9afb7'],['Серый','#5d636c'],['Синий','#2554a6'],['Красный','#b3202a'],['Зелёный','#2a6a4a'],['Бежевый','#c9b48a'],['Жёлтый','#e0b020'],['Оранжевый','#d8651f']];
+const CLR=[['Белый','#ececef'],['Чёрный','#1c1d22'],['Серебристый','#a9afb7'],['Серый','#5d636c'],['Синий','#2554a6'],['Красный','#b3202a'],['Зелёный','#2a6a4a'],['Бежевый','#c9b48a'],['Жёлтый','#e0b020'],['Оранжевый','#d8651f'],['Карбон','#4b4f57']];
 const CLR_W=[22,24,16,14,8,6,3,4,1.5,1.5];
 const isCar=p=>p.kind==='car';
 const carPrice=(m,y)=>{const c=CARS[m];if(!c)return 0;const k=c[3]>c[2]?(y-c[2])/(c[3]-c[2]):1;return Math.round((c[4]+(c[5]-c[4])*Math.max(0,Math.min(1,k)))*USD/1000)*1000};
@@ -590,6 +590,8 @@ function makeCar(b){const m=wpick(BOXES[b].pool),c=CARS[m],y=c[2]+Math.floor(Mat
   Object.assign(p,v,{id:uid6(),t:Date.now(),c:''});p.tier=tierCar(p);return p}
 
 /* ещё ~1000 машин: марка|модель|кузов|годы|цена $|комплектации. Порядок строк не менять — по нему ключи машин в сейфах (новые — только в конец) */
+/* уникальные машины (не выпадают, выдаются лично) */
+CARS.kcarbon=['Koenigsegg Jesko Absolut Carbon','super',2025,2025,1500000000/USD,1500000000/USD];
 const GEN=`Toyota|Camry 30|s|2001|2006|5000|7500|T
 Toyota|Camry 50|s|2011|2014|10000|13000|T
 Toyota|Camry 75|s|2021|2024|24000|30000|T
@@ -1021,7 +1023,7 @@ function carSVG(p){
   const front=c[1]==='gwag'?490:B.w[1]+90,head=c[1]==='classic'?`<rect x="478" y="124" width="12" height="12" rx="2" fill="#fff6d0"/>`:`<path d="M${front-28} ${B.g-58}l24 3v8l-26-2z" fill="#fff6d0"/>`;
   return `<svg class="car" viewBox="0 0 520 270"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${lite}"/><stop offset=".55" stop-color="${col}"/><stop offset="1" stop-color="${dark}"/></linearGradient></defs>
 <rect width="520" height="270" rx="22" fill="#18181b"/><text x="24" y="40" font-size="${c[0].length>30?18:c[0].length>24?21:26}" font-weight="700" fill="#f4f4f5">${esc(c[0])}</text><text x="24" y="66" font-size="19" fill="#8a8a93">${p.y} · ${(CLR[p.k]||CLR[0])[0].toLowerCase()}</text>
-<g transform="translate(0 50)"><ellipse cx="262" cy="${B.g+B.r-3}" rx="232" ry="8" fill="#000" opacity=".45"/><path d="${B.p}" fill="url(#${id})" stroke="${dark}" stroke-width="2"/><path d="${B.win}" fill="#1e2a36" opacity=".92"/><path d="${B.win}" fill="#9cc7ee" opacity=".16"/>
+<g transform="translate(0 50)"><ellipse cx="262" cy="${B.g+B.r-3}" rx="232" ry="8" fill="#000" opacity=".45"/><path d="${B.p}" fill="url(#${id})" stroke="${dark}" stroke-width="2"/>${p.k===10?`<defs><pattern id="cf${id}" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="#2b2e33"/><path d="M0 0h5v5H0zM5 5h5v5H5z" fill="#5a5f68"/></pattern></defs><path d="${B.p}" fill="url(#cf${id})" opacity=".55"/><path d="${B.p}" fill="none" stroke="#c9ccd1" stroke-width="1.2" opacity=".6"/>`:''}<path d="${B.win}" fill="#1e2a36" opacity=".92"/><path d="${B.win}" fill="#9cc7ee" opacity=".16"/>
 ${B.pil.map(l=>`<line x1="${l[0]}" y1="${l[1]}" x2="${l[2]}" y2="${l[3]}" stroke="${col}" stroke-width="7"/>`).join('')}
 <path d="M70 ${B.g-34}H460" stroke="${dark}" stroke-width="2" opacity=".6"/><rect x="${B.w[0]+52}" y="${B.g-48}" width="20" height="4" rx="2" fill="${dark}"/><rect x="${B.w[0]+150}" y="${B.g-48}" width="20" height="4" rx="2" fill="${dark}"/>
 ${head}<rect x="${c[1]==='hatch'?56:30}" y="${B.g-52}" width="8" height="16" rx="2" fill="#d22"/>${B.w.map(wheel).join('')}</g></svg>`}
@@ -1126,7 +1128,7 @@ const MAXL=200;
 const levelFor=b=>{let n=1;while(n<MAXL&&b>=lvNeed(n+1))n++;return n};
 
 /* ===== состояние ===== */
-const GIFTS=[{id:'g4',nick:'9609',bal:0,items:[{kind:'sim',op:'b',pre:'0777',s:'190710'},{kind:'sim',op:'m',pre:'0999',s:'999999'}]},{id:'g5',nick:'9609',bal:0,items:[{fmt:'name',r:'01',l:'LOVE'},{fmt:'name',r:'01',l:'TEMA'},{fmt:'name',r:'01',l:'O4KO'}]},{id:'g7',nick:'9609',bal:0,setBal:10000000},{id:'g8',nick:'9609',bal:67676676},{id:'g9',nick:'9609',bal:0,setBal:67676676676,items:[{kind:'sim',op:'o',pre:'0700',s:'676767'},{fmt:'name',r:'01',l:'676767'},{fmt:'name',r:'01',l:'676SIX'}]}];
+const GIFTS=[{id:'g4',nick:'9609',bal:0,items:[{kind:'sim',op:'b',pre:'0777',s:'190710'},{kind:'sim',op:'m',pre:'0999',s:'999999'}]},{id:'g5',nick:'9609',bal:0,items:[{fmt:'name',r:'01',l:'LOVE'},{fmt:'name',r:'01',l:'TEMA'},{fmt:'name',r:'01',l:'O4KO'}]},{id:'g7',nick:'9609',bal:0,setBal:10000000},{id:'g10',nick:'kham',bal:0,items:[{kind:'car',m:'kcarbon',y:2025,k:10,b:'black'}]},{id:'g8',nick:'9609',bal:67676676},{id:'g9',nick:'9609',bal:0,setBal:67676676676,items:[{kind:'sim',op:'o',pre:'0700',s:'676767'},{fmt:'name',r:'01',l:'676767'},{fmt:'name',r:'01',l:'676SIX'}]}];
 let uid=null;const PV=4,DEV=['hT5cqzjwwAR6TaxWb9GsMaRmtl03'];
 const FRESH=()=>({pv:PV,bal:START,col:[],cols:[],spent:0,earned:0,bonus:0,last:null,n:0,best:null,mode:'plate',lvl:levelFor(START),season:3,pity:0,pt:0,box:'blue',ach:[]});
 let S=FRESH();
@@ -1617,7 +1619,7 @@ $('meBtn').addEventListener('click',()=>go('acc'));
 $('aCode').addEventListener('input',()=>{if(tab==='up')$('aGo').textContent=$('aCode').value.trim()?'Создать аккаунт с прогрессом':'Создать аккаунт'});
 
 /* автообновление: телефон держит старую страницу в кэше до 10 минут — проверяем версию на сервере */
-const VER='31';
+const VER='33';
 fetch(location.pathname+'?nocache='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(h=>{const m=h.match(/const VER='(\d+)'/);if(m&&m[1]!==VER&&!sessionStorage.getItem('upd'+m[1])){sessionStorage.setItem('upd'+m[1],1);flush().finally(()=>location.replace(location.pathname+'?v='+m[1]))}}).catch(()=>{});
 /* запуск */
 applyState(FRESH());
