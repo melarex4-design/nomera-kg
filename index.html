@@ -579,19 +579,40 @@ nwAdd(2,200000,'KHAM BOSS KING KHAN BARS AKULA BURKUT ALTYN BAATYR KAPITAN GENER
 nwAdd(2,350000,'SULTAN LEGENDA KOROL IMPERIA');
 nwAdd(3,600000,'TENGRI');nwAdd(3,800000,'MANAS');nwAdd(3,900000,'KYRGYZ');
 const NCAT=['Надпись','Имя','Крутая надпись','Легендарная надпись'];
-const NAME_W=[67,25,7,1];
-const sameL=l=>/^(.)\1{6}$/.test(l);
+const DIGS='0123456789',ALNUM=LET+DIGS;
+const rnd=(a,n)=>Array.from({length:n},()=>pick(a)).join('');
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+/* цена именного номера считается по самой надписи: одна и та же надпись всегда стоит одинаково */
 function valueName(r,l){
+  const N=(price,cat,what)=>({f:['Именной номер',what],off:0,price,note:cat===0?'Обычная надпись — дешевле прокрутки':cat===1?'Около цены прокрутки':cat===2?'Крутая надпись — в плюс':'Легендарная надпись — большой плюс'});
   if(NAMED[l])return {f:['Именной номер','Единственный в игре'],off:0,note:'Именной номер — выдан лично, в прокрутке не выпадает',price:NAMED[l]};
-  if(sameL(l)){const price=l[0]==='A'?1000000:500000;return {f:['Именной номер','Семь одинаковых букв'],off:0,price,note:'Самый редкий именной номер: семь одинаковых букв'+(l[0]==='A'?' A':'')}}
-  const w=NW[l];if(!w)return {f:['Именной номер'],off:0,price:NAME_COST,note:'Именной номер'};
-  return {f:['Именной номер',NCAT[w[0]]],off:0,price:w[1],note:w[0]===0?'Обычная надпись — дешевле прокрутки':w[0]===1?'Имя — цена около стоимости прокрутки':w[0]===2?'Крутая надпись — в плюс':'Легендарная надпись — большой плюс'}}
+  const n=l.length;
+  if(/^(.)\1*$/.test(l)){const d=/\d/.test(l[0]);
+    if(n===1){const p=d?(l==='1'?1000000:l==='7'?800000:500000):(l==='A'?600000:400000);return N(p,3,d?'Одна цифра':'Одна буква')}
+    if(n===7){const p=l==='AAAAAAA'||l==='7777777'||l==='1111111'?1000000:500000;return N(p,3,'Семь одинаковых')}
+    let p=[0,0,150000,200000,250000,300000,400000][n];if(d&&'17'.includes(l[0]))p*=1.5;else if(l[0]==='A')p*=1.25;
+    return N(Math.round(p/1000)*1000,p>=500000?3:2,n+' одинаковых '+(d?'цифр':'буквы'))}
+  if(NW[l]){const w=NW[l];return N(w[1],w[0],NCAT[w[0]])}
+  let m;
+  if(m=/^KG(\d{1,4})$/.exec(l)){const s=m[1],cool=/^(\d)\1*$/.test(s)||/^0*1$/.test(s)||/^0*7$/.test(s);return N(cool?300000:150000,2,'KG + цифры')}
+  if(m=/^([A-Z]{3,7}?)(\d{1,3})$/.exec(l)){const w=NW[m[1]];if(w)return N(Math.max(70000,Math.round(w[1]*.8/1000)*1000),w[0]>=2?2:w[1]*.8>=100000?1:0,NCAT[w[0]]+' + цифры')}
+  if(/^\d+$/.test(l))return N(n<=3?100000:70000,n<=3?1:0,'Только цифры');
+  return N(70000,0,'Случайная надпись')}
 const tierName=p=>p>=700000?4:p>=300000?3:p>=150000?2:p>=100000?1:0;
 const NREG=['01','01','01','01','08','08','02','09','04','06','03','05','07'];
-function makeName(){const cat=+wpick(Object.fromEntries(NAME_W.map((w,i)=>[i,w])));let l;
-  if(cat===3&&Math.random()<.5)l=(Math.random()<.15?'A':pick(LET_NA)).repeat(7);
-  else l=pick(Object.keys(NW).filter(k=>NW[k][0]===cat));
-  const p={fmt:'name',r:pick(NREG),l},v=valueName(p.r,p.l);return Object.assign(p,v,{id:uid6(),t:Date.now(),tier:tierName(v.price),c:''})}
+/* что может выпасть и как часто, % */
+const NGEN=[
+ [40.5,()=>rnd(LET,ri(4,7))],
+ [12,()=>{let s;do{s=rnd(ALNUM,ri(3,6))}while(!/\d/.test(s)||!/[A-Z]/.test(s));return s}],
+ [9,()=>pick(Object.keys(NW).filter(k=>NW[k][0]===0))],
+ [22,()=>pick(Object.keys(NW).filter(k=>NW[k][0]===1))],
+ [6,()=>{const w=pick(Object.keys(NW).filter(k=>NW[k][0]<=1&&k.length<=6));return w+rnd(DIGS,ri(1,7-w.length>2?2:1))}],
+ [4,()=>pick(Object.keys(NW).filter(k=>NW[k][0]===2))],
+ [2.5,()=>pick(LET).repeat(ri(2,6))],
+ [1.6,()=>'KG'+(Math.random()<.4?pick(['1','01','001','7','07','777','77','1111','0001']):rnd(DIGS,ri(1,4)))],
+ [1.2,()=>Math.random()<.5?pick(DIGS.slice(1)).repeat(ri(2,6)):rnd(DIGS,ri(2,3))],
+ [.6,()=>{const q=Math.random();return q<.3?pick(LET):q<.45?pick(DIGS.slice(1)):q<.75?pick(ALNUM).repeat(7):pick(Object.keys(NW).filter(k=>NW[k][0]===3))}]];
+function makeName(){const g=NGEN[+wpick(Object.fromEntries(NGEN.map((x,i)=>[i,x[0]])))][1];const p={fmt:'name',r:pick(NREG),l:g()};const v=valueName(p.r,p.l);return Object.assign(p,v,{id:uid6(),t:Date.now(),tier:tierName(v.price),c:''})}
 
 /* гарантия: раз в 50–80 прокруток госномеров выпадает дорогой номер (от 30 000 сом) */
 const PITY_MIN=30000,PITY_MAX=150000,pityT=()=>50+Math.floor(Math.random()*31);
@@ -705,7 +726,7 @@ function idle(){
   const m=S.mode,B=BOXES[S.box||'blue'];
   $('big').innerHTML=m==='car'?boxSVG(S.box||'blue'):itemHTML(m==='sim'?{kind:'sim',op:'b',pre:'0777',s:'777777',cat:4}:m==='name'?{fmt:'name',r:'01',l:'ARTEM'}:{fmt:'new',r:'01',d:'919',l:'RRR'});
   $('res').innerHTML=`<div class="hint">${m==='car'?`${B.n} контейнер: машины от ${short(Math.min(...Object.keys(B.pool).map(k=>carPrice(k,CARS[k][2]))))} до ${short(Math.max(...Object.keys(B.pool).map(k=>carPrice(k,CARS[k][3]))))} сом. Чаще выпадают машины около цены контейнера, редко — намного дороже.`
-    :m==='name'?'Именной номер с надписью до 7 букв. Обычная надпись — 70 000, имя — 100–150 тыс., крутая надпись — 200–350 тыс., легендарная и 7 одинаковых букв — до 1 000 000.'
+    :m==='name'?'Любая надпись до 7 знаков: буквы, цифры, KG01, BBB, 777, имена. Случайная надпись — 70 000, имя — 100–150 тыс., одинаковые буквы, KG + цифры и крутые слова — 150–450 тыс., одна цифра, 7 одинаковых и легендарные слова — до 1 000 000.'
     :`Крутите и собирайте ${m==='sim'?'красивые номера телефонов':'госномера'}. Цена — по прайсу nomer.srs.kg и реальным продажам, подробнее в «Аккаунт» → «Как считается цена».`}</div>`;
   $('sellLast').disabled=true;$('sellLast').textContent='Продать';
 }
@@ -910,7 +931,9 @@ function rulesSheet(){
   <h4>Стоимость прокрутки</h4><ul><li>Госномер — ${fmt(COST)}, сим-карта — ${fmt(SIM_COST)}, именной номер — ${fmt(NAME_COST)}.</li>
   <li>Контейнеры: ${Object.values(BOXES).map(B=>B.n.toLowerCase()+' — '+fmt(B.cost)).join(', ')}.</li>
   <li>Цена прокрутки чуть выше средней стоимости выпадающего (примерно 96%). Поэтому бесконечно фармить нельзя: в плюс выводят редкие дорогие выпадения.</li></ul>
-  <h4>Именные номера</h4><ul><li>Надпись до 7 латинских букв. Обычная надпись (SALAM, TURBO…) — 70 000, имя (AIBEK, NURLAN…) — 100 000, ARTEM, OLESIA — 150 000.</li>
+  <h4>Именные номера</h4><ul><li>Любая надпись до 7 знаков из латинских букв и цифр. Случайные буквы и слова (XKTRA, SALAM, TURBO…) — 70 000, имя (AIBEK, NURLAN…) — 100 000, ARTEM, OLESIA — 150 000, имя с цифрами — 80 % цены имени.</li>
+  <li>Одинаковые буквы: BB — 150 000, BBB — 200 000, BBBB — 250 000 … BBBBBB — 400 000 (A на 25 % дороже). Одна буква — 400 000, A — 600 000.</li>
+  <li>KG + цифры (KG12) — 150 000, красивые (KG01, KG777, KG1) — 300 000. Одинаковые цифры: 77 — 300 000 и дороже. Одна цифра — 500 000, 7 — 800 000, 1 — 1 000 000.</li>
   <li>Крутые надписи (BOSS, KING, KHAN, BISHKEK…) — 200 000, SULTAN, LEGENDA — 350 000.</li><li>TENGRI — 600 000, MANAS — 800 000, KYRGYZ — 900 000, семь одинаковых букв — 500 000, AAAAAAA — 1 000 000.</li></ul>
   <h4>Машины</h4><ul><li>Цена — средняя по объявлениям lalafo.kg и mashina.kg (ноябрь 2026) для модели и года, по курсу ${USD} сом за $1.</li>
   <li>Синий контейнер — старые машины (ВАЗ, Matiz, Camry 20…), редко Lexus LX 470. Красный — Camry 70, BMW 5, Lexus ES…, редко BMW M5 и Lexus LX 570. Жёлтый — X7, Cayenne, Land Cruiser 300…, редко G 63, Urus и Rolls-Royce Cullinan.</li>
@@ -1053,7 +1076,7 @@ async function drawTop(force){
   catch(e){$('topList').innerHTML='<div class="empty">Не удалось загрузить рейтинг. Проверьте интернет.</div>'}
 }
 function itemFromLab(lab,price){let m;
-  if(m=/^(\d{2}) ([A-Z]{4,9})$/.exec(lab))return {fmt:'name',r:m[1],l:m[2]};
+  if(m=/^(\d{2}) ([A-Z0-9]{1,9})$/.exec(lab))return {fmt:'name',r:m[1],l:m[2]};
   if(m=/^(\d{2}) (\d{3}) ([A-Z]{3})$/.exec(lab))return {fmt:'new',r:m[1],d:m[2],l:m[3]};
   if(m=/^([A-Z]) (\d{4}) ([A-Z]{2})$/.exec(lab))return OLD[m[1]]?{fmt:'old',r:m[1],d:m[2],l:m[3]}:null;
   if(m=/^(0\d{3}) (\d{3}) (\d{3})$/.exec(lab)){const op=Object.keys(OPS).find(k=>OPS[k].pre.includes(m[1]))||'o';return {kind:'sim',op,pre:m[1],s:m[2]+m[3],cat:simCat(price||0)}}
@@ -1095,7 +1118,7 @@ $('meBtn').addEventListener('click',()=>go('acc'));
 $('aCode').addEventListener('input',()=>{if(tab==='up')$('aGo').textContent=$('aCode').value.trim()?'Создать аккаунт с прогрессом':'Создать аккаунт'});
 
 /* автообновление: телефон держит старую страницу в кэше до 10 минут — проверяем версию на сервере */
-const VER='5';
+const VER='6';
 fetch(location.pathname+'?nocache='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(h=>{const m=h.match(/const VER='(\d+)'/);if(m&&m[1]!==VER&&!sessionStorage.getItem('upd'+m[1])){sessionStorage.setItem('upd'+m[1],1);flush().finally(()=>location.replace(location.pathname+'?v='+m[1]))}}).catch(()=>{});
 /* запуск */
 applyState(FRESH());
