@@ -1099,8 +1099,8 @@ function plateIn(lo,hi){let p;for(let i=0;i<6000;i++){p=rawPlate(Math.random()<O
   if(!p.price){p={fmt:'new',r:'01',d:'777',l:'KGZ'};Object.assign(p,evalPlate(p))}
   return Object.assign(p,{id:uid6(),t:Date.now(),tier:tierOf(p.price),c:''})}
 const makePityPlate=()=>plateIn(PITY_MIN,PITY_MAX);
-/* шансы: примерно раз в 300 прокруток — номер 100 000–110 000, раз в 45 — 2 500–4 000; цена прокрутки 1 500 почти равна средней цене номера */
-const WIN_P=[[1/300,100000,110000],[1/45,2500,4000]];
+/* шансы: примерно раз в 300 прокруток — номер 100 000–110 000, раз в 45 — 15 000–50 000 */
+const WIN_P=[[1/300,100000,110000],[1/45,15000,50000]];
 /* обычная прокрутка — номер до BASE_MAX; всё дороже выдают только шансы WIN_P */
 const BASE_MAX=8000;
 function makePlateP(){let r=Math.random();for(const [q,lo,hi] of WIN_P){if(r<q)return plateIn(lo,hi);r-=q}let p;for(let i=0;i<30;i++){p=makePlate();if(p.price<=BASE_MAX)break}return p}
@@ -1414,7 +1414,7 @@ function rulesSheet(){
   <li>Старые номера (B 1234 AB): 4 одинаковые цифры — 300–600 тыс., 0001 — 200 тыс., 0002–0009 — 100 тыс., круглые — 60 тыс., пары — 20 тыс., обычный — 1 500–2 000. Одинаковые буквы ×2, буквы как серия ×3, серии BB, BM, BK, BC, BS +50 000.</li>
   <li>Сим-карты — по прайсам операторов и лотам аукциона О!.</li>
   <li>Чем дороже номер, тем реже он выпадает.</li>
-  <li>Госномера: примерно раз в 300 прокруток — номер от 100 000 сом, раз в 45 — номер 2 500–4 000. Сим-карты: примерно раз в 450 прокруток — симка 30 000–45 000.</li></ul>
+  <li>Госномера: примерно раз в 300 прокруток — номер от 100 000 сом, раз в 45 — номер 15 000–50 000. Сим-карты: примерно раз в 450 прокруток — симка 30 000–45 000.</li></ul>
   <h4>Стоимость прокрутки</h4><ul><li>Госномер — ${fmt(COST)}, сим-карта — ${fmt(SIM_COST)}, именной номер — ${fmt(NAME_COST)}.</li>
   <li>Контейнеры: ${Object.values(BOXES).map(B=>B.n.toLowerCase()+' — '+fmt(B.cost)).join(', ')}.</li>
   <li>Госномера, сим-карты и машины: цена прокрутки чуть выше средней стоимости выпадающего, в плюс выводят редкие дорогие выпадения. Именной номер никогда не стоит дешевле прокрутки.</li></ul>
@@ -1610,7 +1610,7 @@ $('meBtn').addEventListener('click',()=>go('acc'));
 $('aCode').addEventListener('input',()=>{if(tab==='up')$('aGo').textContent=$('aCode').value.trim()?'Создать аккаунт с прогрессом':'Создать аккаунт'});
 
 /* автообновление: телефон держит старую страницу в кэше до 10 минут — проверяем версию на сервере */
-const VER='15';
+const VER='16';
 fetch(location.pathname+'?nocache='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(h=>{const m=h.match(/const VER='(\d+)'/);if(m&&m[1]!==VER&&!sessionStorage.getItem('upd'+m[1])){sessionStorage.setItem('upd'+m[1],1);flush().finally(()=>location.replace(location.pathname+'?v='+m[1]))}}).catch(()=>{});
 /* запуск */
 applyState(FRESH());
