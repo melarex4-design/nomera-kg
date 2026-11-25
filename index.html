@@ -529,13 +529,20 @@ const CARS={
  gls600:['Mercedes-Maybach GLS 600','box',2021,2025,160000,220000],ghost:['Rolls-Royce Ghost','limo',2021,2025,280000,400000],phantom:['Rolls-Royce Phantom','limo',2018,2025,350000,550000],
  puro:['Ferrari Purosangue','suv',2023,2025,550000,700000],sf90:['Ferrari SF90 Stradale','super',2020,2025,450000,600000],f296:['Ferrari 296 GTB','super',2022,2025,300000,380000],
  huracan:['Lamborghini Huracán','super',2018,2024,220000,330000],revuelto:['Lamborghini Revuelto','super',2024,2026,600000,800000],mcl750:['McLaren 750S','super',2024,2025,320000,380000],
- p911:['Porsche 911 Turbo S','gt',2021,2025,220000,300000],dbx:['Aston Martin DBX 707','suv',2022,2025,200000,260000],chiron:['Bugatti Chiron','super',2017,2023,2800000,3600000]};
+ p911:['Porsche 911 Turbo S','gt',2021,2025,220000,300000],dbx:['Aston Martin DBX 707','suv',2022,2025,200000,260000],chiron:['Bugatti Chiron','super',2017,2023,2800000,3600000],
+ svj:['Lamborghini Aventador SVJ','super',2019,2022,550000,700000],f812:['Ferrari 812 Competizione','gt',2021,2023,600000,800000],f8:['Ferrari F8 Tributo','super',2020,2023,300000,380000],
+ roma:['Ferrari Roma','gt',2021,2025,230000,280000],pista:['Ferrari 488 Pista','super',2019,2020,400000,500000],mcl765:['McLaren 765LT','super',2021,2022,450000,550000],
+ senna:['McLaren Senna','super',2019,2020,1200000,1500000],p918:['Porsche 918 Spyder','super',2014,2015,1500000,1800000],gt3rs:['Porsche 911 GT3 RS','gt',2023,2025,300000,400000],
+ amgone:['Mercedes-AMG ONE','super',2023,2024,2700000,3200000],spectre:['Rolls-Royce Spectre','gt',2024,2025,420000,500000],brabus:['Brabus G 800','gwag',2021,2024,350000,450000],
+ flying:['Bentley Flying Spur Mulliner','limo',2022,2025,250000,320000],urusp:['Lamborghini Urus Performante','suv',2023,2025,260000,330000],
+ fordgt:['Ford GT','super',2017,2022,900000,1200000],lfa:['Lexus LFA','super',2011,2012,900000,1300000],veyron:['Bugatti Veyron','super',2008,2015,1500000,2000000],
+ valkyrie:['Aston Martin Valkyrie','super',2022,2023,3000000,3500000],jesko:['Koenigsegg Jesko','super',2023,2024,3000000,3800000],huayra:['Pagani Huayra','super',2017,2022,2800000,3500000]};
 /* контейнеры: модель и её частота */
 const BOXES={
  blue:{n:'Синий',c:'#2d63b8',d:'#1f4a8c',cost:0,pool:{vaz:30,matiz:26,fit:20,vectra:20,priora:18,nexia:20,m190:14,audi100:14,passat:14,odyssey:12,e39:12,w210:12,camry20:10,ipsum:6,camry40:3,lx470:.5}},
  red:{n:'Красный',c:'#b8373f',d:'#8e252c',cost:0,pool:{accord:20,elantra:20,camry55:18,e212:14,f10:14,sonata:14,camry70:14,k5:12,tucson:12,sportage:12,rav4:10,c205:10,a6:9,tiguan:9,highl:6,es:10,rx:8,x5:5,prado:5,m5f90:.7,lx570:.45}},
  gold:{n:'Жёлтый',c:'#d9a521',d:'#a87c12',cost:0,pool:{zeekr:16,palisade:20,l9:14,rx350:18,ls:10,gle:12,modelx:8,q8:10,x6:10,w214:8,x7:14,cayenne:14,lc300:12,gx550:8,rr:8,s223:7,lx600:5,m5g90:4,g63:4,urus:1,cullinan:.5}},
- black:{n:'Чёрный',c:'#2a2a2e',d:'#111113',cost:0,fix:50000000,pool:{gls600:3,bentayga:3,maybach:3,dbx:3,p911:4,contgt:4,huracan:6,urus:6,ghost:7,f296:7,mcl750:7,cullinan:8,phantom:9,sf90:9,puro:9,revuelto:9,chiron:5.5}}};
+ black:{n:'Чёрный',c:'#2a2a2e',d:'#111113',cost:0,fix:50000000,pool:{gls600:3,bentayga:3,maybach:3,dbx:3,p911:4,contgt:4,roma:4,flying:4,huracan:5,urus:5,urusp:5,gt3rs:5,f8:5,ghost:6,f296:6,mcl750:6,brabus:6,cullinan:7,spectre:7,pista:7,phantom:8,mcl765:7,sf90:8,svj:8,puro:8,f812:8,revuelto:8,fordgt:2,lfa:2,senna:2,veyron:1.6,p918:1.5,chiron:1.6,huayra:.6,amgone:.6,valkyrie:.5,jesko:.5}}};
 const CLR=[['Белый','#ececef'],['Чёрный','#1c1d22'],['Серебристый','#a9afb7'],['Серый','#5d636c'],['Синий','#2554a6'],['Красный','#b3202a'],['Зелёный','#2a6a4a'],['Бежевый','#c9b48a'],['Жёлтый','#e0b020'],['Оранжевый','#d8651f']];
 const CLR_W=[22,24,16,14,8,6,3,4,1.5,1.5];
 const isCar=p=>p.kind==='car';
@@ -957,7 +964,7 @@ function rulesSheet(){
   <li>KG + цифры (KG12) — 150 000, красивые (KG01, KG777, KG1) — 300 000. Одинаковые цифры: 77 — 300 000 и дороже. Одна цифра — 500 000, 7 — 800 000, 1 — 1 000 000.</li>
   <li>Крутые надписи (BOSS, KING, KHAN, BISHKEK…) — 200 000, SULTAN, LEGENDA — 350 000.</li><li>TENGRI — 600 000, MANAS — 800 000, KYRGYZ — 900 000, семь одинаковых букв — 500 000, AAAAAAA — 1 000 000.</li></ul>
   <h4>Машины</h4><ul><li>Цена — средняя по объявлениям lalafo.kg и mashina.kg (ноябрь 2026) для модели и года, по курсу ${USD} сом за $1.</li>
-  <li>Синий контейнер — старые машины (ВАЗ, Matiz, Camry 20…), редко Lexus LX 470. Красный — Camry 70, BMW 5, Lexus ES…, редко BMW M5 и Lexus LX 570. Жёлтый — X7, Cayenne, Land Cruiser 300, Zeekr, Li L9…, редко G 63, Urus и Cullinan. Чёрный (50 млн) — Bentley, Maybach, Ferrari, Lamborghini, McLaren, Rolls-Royce, примерно 1 из 20 — Bugatti Chiron.</li><li>Машины хранятся в сейфе во вкладке «Гараж».</li>
+  <li>Синий контейнер — старые машины (ВАЗ, Matiz, Camry 20…), редко Lexus LX 470. Красный — Camry 70, BMW 5, Lexus ES…, редко BMW M5 и Lexus LX 570. Жёлтый — X7, Cayenne, Land Cruiser 300, Zeekr, Li L9…, редко G 63, Urus и Cullinan. Чёрный (50 млн) — Ferrari 812, Aventador SVJ, Revuelto, SF90, Purosangue, McLaren 765LT, Rolls-Royce Phantom и Spectre, Brabus G 800, Bentley, Maybach и другие; редко Ford GT, Lexus LFA, McLaren Senna, Porsche 918, Bugatti Veyron и Chiron, совсем редко Pagani Huayra, Mercedes-AMG ONE, Aston Martin Valkyrie и Koenigsegg Jesko.</li><li>Машины хранятся в сейфе во вкладке «Гараж».</li>
   <li>Примерно половина машин дешевле контейнера, треть — около его цены, каждая седьмая — в плюс, совсем редкие — в 2–5 раз дороже.</li></ul>
   <h4>Уровни</h4><ul><li>2 уровень — 70 000 на балансе, каждый следующий шаг на 10 000 больше: 80 000, 100 000, 130 000, 170 000… После 50 уровня каждый следующий на 3% дороже, 200 уровень — около 1 млрд.</li><li>Бонус за уровень: 5 000 × (уровень − 1), после 50 уровня — 1% от порога.</li><li>×25 — с 5 уровня, ва-банк — с 10 уровня.</li></ul>
   </div><button class="cancel">Закрыть</button>`);
@@ -1139,7 +1146,7 @@ $('meBtn').addEventListener('click',()=>go('acc'));
 $('aCode').addEventListener('input',()=>{if(tab==='up')$('aGo').textContent=$('aCode').value.trim()?'Создать аккаунт с прогрессом':'Создать аккаунт'});
 
 /* автообновление: телефон держит старую страницу в кэше до 10 минут — проверяем версию на сервере */
-const VER='8';
+const VER='9';
 fetch(location.pathname+'?nocache='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(h=>{const m=h.match(/const VER='(\d+)'/);if(m&&m[1]!==VER&&!sessionStorage.getItem('upd'+m[1])){sessionStorage.setItem('upd'+m[1],1);flush().finally(()=>location.replace(location.pathname+'?v='+m[1]))}}).catch(()=>{});
 /* запуск */
 applyState(FRESH());
